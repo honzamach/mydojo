@@ -1,0 +1,21 @@
+{% extends "_layout.html" %}
+
+{% block title %}{{ _('Page Not Found') }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="jumbotron" style="margin-top: 1em;">
+            <h1 class="text-center">404</h1>
+            <p class="lead text-center">
+                {{ _('Page Not Found') }}!
+            </p>
+            <hr>
+            <p class="text-center">
+                {{ _('What you were looking for is just not there, perhaps <a href="%(link)s">go somewhere nice</a> instead.', link = url_for('index')) | safe }}
+            </p>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+{% endblock %}

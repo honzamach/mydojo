@@ -1,0 +1,7 @@
+include LICENSE.txt
+include README.rst
+recursive-include mydojo/static *
+recursive-include mydojo/templates *
+recursive-include mydojo/translations *.mo
+recursive-include mydojo/blueprints *
+global-exclude *.pyc

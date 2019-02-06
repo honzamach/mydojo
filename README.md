@@ -1,2 +1,0 @@
-# mydojo
-My personal website

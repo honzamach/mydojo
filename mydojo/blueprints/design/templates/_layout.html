@@ -1,0 +1,177 @@
+{%- import '_macros_site.html' as macros_site with context -%}
+<!DOCTYPE html>
+<html lang="en">
+    <!--
+    ============================================================================
+        HEADER
+    ============================================================================
+    -->
+    <head>
+{%- block head %}
+
+        <!----------------------------------------------------------------------
+            Required meta tags
+        ----------------------------------------------------------------------->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    {%- block headcss %}
+
+        <!----------------------------------------------------------------------
+            CSS
+        ----------------------------------------------------------------------->
+
+        <!-- FontAwesome -->
+        <link rel="stylesheet" href="{{ url_for('design.static', filename='vendor/font-awesome/css/solid.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('design.static', filename='vendor/font-awesome/css/brands.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('design.static', filename='vendor/font-awesome/css/fontawesome.min.css') }}">
+
+        <!-- Bootstrap -->
+        <link rel="stylesheet" href="{{ url_for('design.static', filename='vendor/bootstrap/css/bootstrap.min.css') }}">
+
+        <!-- Custom style -->
+        <link rel="stylesheet" href="{{ url_for('design.static', filename='css/mydojo.css') }}">
+    {%- endblock headcss %}
+
+    {%- block headjs %}
+
+        <!----------------------------------------------------------------------
+            JS
+        ----------------------------------------------------------------------->
+
+        <!-- Flask JSGlue plugin -->
+        {{ JSGlue.include() }}
+
+        <!-- Localization initializations -->
+        <script>
+
+            // These global variables must be defined here to bypass browser caching,
+            // they might change with each request.
+            var GLOBAL_LOCALE   = "{{ session['locale'] }}"
+            var GLOBAL_TIMEZONE = "{{ session['timezone'] }}"
+
+        </script>
+
+    {%- endblock headjs %}
+
+        <!----------------------------------------------------------------------
+            Page metadata
+        ----------------------------------------------------------------------->
+        <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+        <title>{% block title %}{% endblock %} - MyDojo</title>
+{%- endblock head %}
+    </head>
+
+    <!--
+    ============================================================================
+        BODY
+    ============================================================================
+    -->
+    <body>
+{%- block body %}
+
+        <div id="ajax-loader-overlay">
+            <div id="ajax-loader">
+                {{ get_icon('ajax-loader') }}
+                <hr>
+                <h3><strong>{{ _('... LOADING ...') }}</strong></h3>
+            </div>
+        </div>
+
+        <!-- Main page navigation - BEGIN ------------------------------------->
+        <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+            <div class="container container-navbar">
+                <a class="navbar-brand" href="{{ url_for('index') }}">
+                    <img src="{{ url_for('static', filename='mydojo-icon-32x32.png') }}" alt="MyDojo logo" width="32" height="32" style="display: inline-block">
+                    MyDojo
+                </a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-main" aria-controls="navbar-main" aria-expanded="false" aria-label="{{ _('Toggle navigation') }}">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbar-main">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item active">
+                            <a class="nav-link" href="{{ url_for('index') }}">
+                                {{ get_icon('section-home') }}
+                                <span class="d-none d-lg-inline"> {{ _('Home') }}</span>
+                                <span class="sr-only">({{ _('current') }})</span>
+                            </a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav ml-auto">
+                        {{ macros_site.render_locale_switcher() }}
+                    </ul>
+                </div>
+            </div> <!-- .container -->
+        </nav> <!-- .navbar -->
+        <!-- Main page navigation - END --------------------------------------->
+
+        <!-- Content container - BEGIN ---------------------------------------->
+        <div class="container container-content">
+            <main role="main">
+
+                <!-- Flashed messages - BEGIN --------------------------------->
+                <div class="container-flashed-messages">
+                {%- with messages = get_flashed_messages(with_categories = true) %}
+                    {%- if messages %}
+                        {%- for category, message in messages %}
+                    {%- call macros_site.render_alert(category) %}
+                        {{ message }}
+                    {%- endcall %}
+                        {%- endfor %}
+                    {%- endif %}
+                {%- endwith %}
+                </div>
+                <!-- Flashed messsages - END ---------------------------------->
+
+                <!-- Content - BEGIN ------------------------------------------>
+                {%- block content %}{% endblock content %}
+                <!-- Content - END -------------------------------------------->
+
+            </main>
+        </div> <!-- /container -->
+        <!-- Content container - END ------------------------------------------>
+
+        <!-- Footer container - BEGIN ----------------------------------------->
+        <div class="container container-footer" id="footer">
+            <hr>
+            <span data-toggle="tooltip" title="{{ _('Page generated at: ') }}">{{ get_icon('clock') }}</span><span class="d-none d-lg-inline"> <em>{{ _('Page generated at: ') }}</em></span> {{ babel_format_datetime(mydojo_cdt_utc) }} &#124;
+            <span data-toggle="tooltip" title="{{ _('Page generated in: ') }}">{{ get_icon('stopwatch') }}</span><span class="d-none d-lg-inline"> <em>{{ _('Page generated in: ') }}</em></span> {{ get_timedelta(g.requeststart) }}
+            <br>
+            &copy; {{ _('since') }} 2018 &#124;
+            {{ _('Powered by: ') }}
+            <a data-toggle="tooltip" title="Bootstrap" href="https://getbootstrap.com/">
+                Bootstrap
+            </a> &#124;
+            <a data-toggle="tooltip" title="jQuery" href="https://jquery.com/">
+                jQuery
+            </a>
+        </div>
+        <!-- Footer container - END ------------------------------------------->
+
+    {%- block bodyjs %}
+
+        <!----------------------------------------------------------------------
+            JS
+        ----------------------------------------------------------------------->
+
+        <!-- jQuery -->
+        <script src="{{ url_for('design.static', filename='vendor/jquery/js/jquery.min.js') }}"></script>
+
+        <!-- Popper.js -->
+        <script src="{{ url_for('design.static', filename='vendor/popper/js/popper.min.js') }}"></script>
+
+        <!-- Bootstrap -->
+        <script src="{{ url_for('design.static', filename='vendor/bootstrap/js/bootstrap.min.js') }}"></script>
+
+        <!-- Custom scripts -->
+        <script src="{{ url_for('mainjs') }}"></script>
+
+    {%- endblock bodyjs %}
+
+{%- endblock body %}
+
+    </body>
+</html>

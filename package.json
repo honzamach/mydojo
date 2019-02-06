@@ -1,0 +1,28 @@
+{
+    "name": "mydojo",
+    "description": "My personal internet Dojo",
+    "author": "Honza Mach <honza.mach.ml@gmail.com>",
+    "homepage": "https://github.com/honzamach/mydojo",
+    "repository": "https://github.com/honzamach/mydojo.git",
+    "license": "MIT",
+    "devDependencies": {
+        "grunt": "^1.0.3",
+        "grunt-chmod": "^1.1.1",
+        "grunt-contrib-clean": "^2.0.0",
+        "grunt-contrib-concat": "^1.0.1",
+        "grunt-contrib-copy": "^1.0.0",
+        "grunt-contrib-rename": "^0.2.0",
+        "grunt-shell": "^3.0.1",
+        "grunt-stripcomments": "^0.7.2",
+        "grunt-template": "^1.0.0",
+        "load-grunt-tasks": "^4.0.0",
+        "time-grunt": "^2.0.0"
+    },
+    "dependencies": {
+        "@fortawesome/fontawesome-pro": "^5.7.1",
+        "bootstrap": "^4.2.1",
+        "bootswatch": "^4.2.1",
+        "jquery": "^3.3.1",
+        "popper.js": "^1.14.7"
+    }
+}

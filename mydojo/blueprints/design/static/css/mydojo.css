@@ -1,0 +1,58 @@
+/*
+ * Base structure
+ */
+
+.container-content {
+    margin-top: 1em;
+}
+
+/* AJAX loader */
+#ajax-loader-overlay {
+    display: none;
+    background: #ffffff;
+    color: #666666;
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    z-index: 5000;
+    top: 0;
+    left: 0;
+    float: left;
+    text-align: center;
+    padding-top: 25%;
+    opacity: 0.6;
+    filter: alpha(opacity=60); /* For IE8 and earlier */
+}
+#ajax-loader {
+    position: fixed;
+    color: #000000;
+    left: 50%;
+    top: 45%;
+    z-index: 10000;
+    opacity: 1.0;
+    filter: alpha(opacity=100); /* For IE8 and earlier */
+}
+
+/******************************************
+ * Page footer
+ ******************************************/
+
+#footer {
+    vertical-align: top;
+    text-align: right;
+    font-size: 0.9em;
+}
+#footer img {
+    opacity: 0.2;
+    filter: alpha(opacity=20); /* For IE8 and earlier */
+    padding-left: 2.0em;
+}
+#footer a, #footer a:visited {
+    vertical-align: top;
+    color: [% site.colsch.col8 %];
+    text-decoration: none;
+}
+#footer a:hover {
+    color: [% site.colsch.col8 %];
+    text-decoration: underline;
+}

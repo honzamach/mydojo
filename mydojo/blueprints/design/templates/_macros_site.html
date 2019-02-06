@@ -1,0 +1,54 @@
+{#- ############################################################################
+
+    MACROS FOR RENDERING VARIOUS SITE WIDGETS AND COMPONENTS.
+
+############################################################################ -#}
+
+{#-
+
+    Render the locale switcher widget into application main menu.
+
+-#}
+{%- macro render_locale_switcher() %}
+                        <!-- Locale switcher widget - BEGIN ------------------->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="localeSwitcherDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span data-toggle="tooltip" data-placement="bottom" title="{{ _('Switch site locale') }}">{{ get_country_flag(g.locale|upper) }} <span class="d-none d-lg-inline">{{ config['MYDOJO_LOCALES'][g.locale] | capitalize }}</span></span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="localeSwitcherDropdown">
+    {%- for locale in config['MYDOJO_LOCALES'] %}
+                                <a class="dropdown-item" href="{{ url_for('locale', code = locale) }}">
+                                    {{ get_country_flag(locale|upper) }} {{ config['MYDOJO_LOCALES'][locale] | capitalize }}
+                                </a>
+    {%- endfor %}
+                            </div>
+                        </li>
+                        <!-- Locale switcher widget - END --------------------->
+{%- endmacro -%}
+
+
+{#-
+
+    Render given message as Bootstrap alert.
+
+-#}
+{%- macro render_alert(category, dismissible = True, forceicon = None) %}
+{%- if category == 'error' %}
+{%- set category = 'danger' %}
+{% elif category == 'message' %}
+{%- set category = 'info' %}
+{%- endif %}
+<div class="alert alert-{{ category }}{% if dismissible %} alert-dismissible{% endif %}" role="alert">
+{%- if dismissible %}
+    <button type="button" class="close" data-dismiss="alert" data-toggle="tooltip" aria-label="{{ _('Close') }}" title="{{ _('Close') }}">
+        <span aria-hidden="true">&times;</span>
+    </button>
+{%- endif %}
+    {%- if forceicon %}
+    {{ get_icon(forceicon) }}
+    {%- else %}
+    {{ get_icon('alert-' + category) }}
+    {%- endif %}
+    {{ caller() }}
+</div>
+{%- endmacro -%}

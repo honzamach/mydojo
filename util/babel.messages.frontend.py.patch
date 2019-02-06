@@ -1,0 +1,19 @@
+*** /usr/lib/python3/dist-packages/babel/messages/frontend.py	2017-09-22 16:00:31.919009063 +0200
+--- /usr/lib/python3/dist-packages/babel/messages/frontend.py.new	2017-09-22 16:00:49.635009463 +0200
+***************
+*** 1122,1128 ****
+              tmpname = os.path.join(os.path.dirname(filename),
+                                     tempfile.gettempprefix() +
+                                     os.path.basename(filename))
+!             tmpfile = open(tmpname, 'w')
+              try:
+                  try:
+                      write_po(tmpfile, catalog,
+--- 1122,1128 ----
+              tmpname = os.path.join(os.path.dirname(filename),
+                                     tempfile.gettempprefix() +
+                                     os.path.basename(filename))
+!             tmpfile = open(tmpname, 'wb')
+              try:
+                  try:
+                      write_po(tmpfile, catalog,

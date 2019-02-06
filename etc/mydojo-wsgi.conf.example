@@ -1,0 +1,17 @@
+#-------------------------------------------------------------------------------
+# MyDojo example configuration for APACHE web server - WSGI
+#
+# This file is part of MyDojo package (https://github.com/honzamach/mydojo).
+#
+# Copyright (C) since 2018 Honza Mach <honza.mach.ml@gmail.com>
+# Use of this source is governed by the MIT license, see LICENSE file.
+#-------------------------------------------------------------------------------
+
+WSGIDaemonProcess mydojo user=www-data group=www-data threads=5
+WSGIScriptAlias / /usr/local/bin/mydojo.wsgi
+
+<Directory /usr/lib/python3/dist-packages/wsgi>
+    WSGIProcessGroup mydojo
+    WSGIApplicationGroup %{GLOBAL}
+    Require all granted
+</Directory>

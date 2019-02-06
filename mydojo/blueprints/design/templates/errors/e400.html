@@ -1,0 +1,21 @@
+{% extends "_layout.html" %}
+
+{% block title %}{{ _('Bad Request') }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="jumbotron" style="margin-top: 1em;">
+            <h1 class="text-center">400</h1>
+            <p class="lead text-center">
+                {{ _('Bad Request') }}!
+            </p>
+            <hr>
+            <p class="text-center">
+                {{ _('It seems you have done something naughty, perhaps <a href="%(link)s">go somewhere nice</a> instead.', link = url_for('index')) | safe }}
+            </p>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+{% endblock %}

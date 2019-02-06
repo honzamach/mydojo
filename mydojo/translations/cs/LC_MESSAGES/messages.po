@@ -1,0 +1,135 @@
+# Czech translations for PROJECT.
+# Copyright (C) 2019 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2019-02-05 20:18+0100\n"
+"PO-Revision-Date: 2019-02-05 20:18+0100\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: cs\n"
+"Language-Team: cs <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=((n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
+
+#: app.py:310
+#, python-format
+msgid "Locale was succesfully changed to <strong>%(lcln)s (%(lclc)s)</strong>."
+msgstr "Lokalizace byla úspěšně změněna na <strong>%(lcln)s (%(lclc)s)</strong>."
+
+#: blueprints/design/templates/_layout.html:78
+msgid "... LOADING ..."
+msgstr "... NAČÍTÁM ..."
+
+#: blueprints/design/templates/_layout.html:86
+msgid "Toggle navigation"
+msgstr "Zobrazit navigaci"
+
+#: blueprints/design/templates/_layout.html:94
+msgid "Home"
+msgstr "Domů"
+
+#: blueprints/design/templates/_layout.html:94
+msgid "current"
+msgstr "aktuální"
+
+#: blueprints/design/templates/_layout.html:135
+msgid "Page generated at: "
+msgstr "Stránka vygenerována v: "
+
+#: blueprints/design/templates/_layout.html:136
+msgid "Page generated in: "
+msgstr "Stránka vygenerována za: "
+
+#: blueprints/design/templates/_layout.html:138
+msgid "since"
+msgstr "od"
+
+#: blueprints/design/templates/_layout.html:139
+msgid "Powered by: "
+msgstr "Postavené na: "
+
+#: blueprints/design/templates/_macros_site.html:16
+msgid "Switch site locale"
+msgstr "Změnit lokalizaci stránek"
+
+#: blueprints/design/templates/_macros_site.html:43
+msgid "Close"
+msgstr "Zavřít"
+
+#: blueprints/design/templates/errors/e400.html:3
+#: blueprints/design/templates/errors/e400.html:11
+msgid "Bad Request"
+msgstr "Bad Request"
+
+#: blueprints/design/templates/errors/e400.html:15
+#, python-format
+msgid ""
+"It seems you have done something naughty, perhaps <a href=\"%(link)s\">go"
+" somewhere nice</a> instead."
+msgstr "Vypadá to, že s Vaším požadavkem nebylo vše v pořádku. Zkuste třeba <a "
+"href=\"%(link)s\">jít</a> někam jinam."
+
+#: blueprints/design/templates/errors/e403.html:3
+#: blueprints/design/templates/errors/e403.html:11
+msgid "Forbidden"
+msgstr "Forbidden"
+
+#: blueprints/design/templates/errors/e403.html:15
+#, python-format
+msgid ""
+"It seems you do not have sufficient permissions to access this resource, "
+"perhaps <a href=\"%(link)s\">go somewhere nice</a> instead."
+msgstr ""
+"Vypadá to, že pro přístup k této stránce nemáte dostatečná oprávnění, "
+"zkuste třeba <a href=\"%(link)s\">jít</a> někam jinam."
+
+#: blueprints/design/templates/errors/e404.html:3
+#: blueprints/design/templates/errors/e404.html:11
+msgid "Page Not Found"
+msgstr "Page Not Found"
+
+#: blueprints/design/templates/errors/e404.html:15
+#, python-format
+msgid ""
+"What you were looking for is just not there, perhaps <a "
+"href=\"%(link)s\">go somewhere nice</a> instead."
+msgstr ""
+"Stránka kterou hledáte nebyla nalezena, zkuste třeba <a "
+"href=\"%(link)s\">jít</a> někam jinam."
+
+#: blueprints/design/templates/errors/e410.html:3
+#: blueprints/design/templates/errors/e410.html:11
+msgid "Gone"
+msgstr "Gone"
+
+#: blueprints/design/templates/errors/e410.html:15
+#, python-format
+msgid ""
+"What you were looking for is just not there anymore, perhaps <a "
+"href=\"%(link)s\">go somewhere nice</a> instead."
+msgstr ""
+"Stránka kterou hledáte už neexistuje, zkuste třeba <a "
+"href=\"%(link)s\">jít</a> někam jinam."
+
+#: blueprints/design/templates/errors/e500.html:3
+#: blueprints/design/templates/errors/e500.html:11
+msgid "Internal Server Error"
+msgstr "Internal Server Error"
+
+#: blueprints/design/templates/errors/e500.html:15
+msgid "We are sorry, but something went terribly wrong. Please try again later."
+msgstr ""
+"Je nám to líto, ale něco se ošklivě pokazilo. Zkuste to prosím znovu "
+"později."
+
+#: templates/index.html:3 templates/index.html:8
+msgid "Welcome to MyDojo!"
+msgstr "Vítejte do MyDojo!"
+

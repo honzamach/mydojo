@@ -1,0 +1,8 @@
+pytz
+babel
+jinja2
+blinker
+flask
+flask-babel
+flask-debugtoolbar
+flask-jsglue

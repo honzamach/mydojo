@@ -1,0 +1,18 @@
+{
+	"folders":
+	[
+		{
+			"path": ".",
+            "folder_exclude_patterns": ["build", "dist", "mydojo.egg-info"],
+		}
+	],
+	"settings": {
+        "SublimeLinter.linters.pylint.args": [
+            "--rcfile",
+            ".pylintrc"
+        ],
+        "SublimeLinter.linters.pylint.disable": false,
+        "SublimeLinter.linters.pylint.python": "/usr/bin/python3",
+        "SublimeLinter.linters.pylint.working_dir": "$project_path"
+    }
+}
