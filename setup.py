@@ -68,14 +68,17 @@ setup(
         'nose'
     ],
     install_requires=[
-        'pytz==2018.5',
+        'alembic==1.0.7',
         'babel==2.6.0',
-        'jinja2==2.10',
         'blinker==1.4',
         'flask==1.0.2',
         'flask-babel==0.11.2',
         'flask-debugtoolbar==0.10.1',
-        'flask-jsglue==0.3.1'
+        'flask-jsglue==0.3.1',
+        'flask-migrate==2.2.1',
+        'flask-sqlalchemy==2.3.2',
+        'jinja2==2.10',
+        'pytz==2018.5'
     ],
     # Add development requirements as extras. This way it is possible to install
     # the package for development locally with following command:
@@ -94,9 +97,19 @@ setup(
         ]
     },
     scripts = [
+        'bin/mydojo-init.sh',
         'bin/mydojo.wsgi',
         'bin/mydojo-dev.py'
     ],
+    # Add entry point to custom command line interface.
+    #
+    # Resources:
+    #   http://flask.pocoo.org/docs/1.0/cli/#custom-commands
+    entry_points={
+        'console_scripts': [
+            'mydojo-cli=mydojo:cli'
+        ],
+    },
     include_package_data = True,
     zip_safe = False
 )

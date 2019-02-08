@@ -84,6 +84,10 @@ class Config:  # pylint: disable=locally-disabled,too-few-public-methods
     BABEL_DEFAULT_LOCALE   = mydojo.const.MYDOJO_DEFAULT_LOCALE
     BABEL_DEFAULT_TIMEZONE = mydojo.const.MYDOJO_DEFAULT_TIMEZONE
 
+    # SQLAlchemy configurations.
+    SQLALCHEMY_DATABASE_URI        = 'postgresql://mydojo:mydojo@localhost/mydojo'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
     #---------------------------------------------------------------------------
 
     #

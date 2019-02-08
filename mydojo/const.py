@@ -46,6 +46,19 @@ FLASH_FAILURE = 'danger'
 """Class for *failure* flash messages."""
 
 
+ROLE_USER = 'user'
+"""Name of the 'user' role."""
+
+ROLE_DEVELOPER = 'developer'
+"""Name of the 'developer' role."""
+
+ROLE_ADMIN = 'admin'
+"""Name of the 'admin' role."""
+
+ROLES = [ROLE_USER, ROLE_DEVELOPER, ROLE_ADMIN]
+"""List of valid user roles."""
+
+
 CFGKEY_MODULES_LOADED = 'MYDOJO_MODULES_LOADED'
 """Configuration key name: Registry of all successfully loaded blueprints."""
 
@@ -55,6 +68,12 @@ CFGKEY_MODULES_REQUESTED = 'MYDOJO_MODULES'
 
 RESOURCE_BABEL = 'babel'
 """Name for the ``flask_babel.Babel`` object within the application resources."""
+
+RESOURCE_SQLDB = 'sqldb'
+"""Name for the ``flask_sqlalchemy.SQLAlchemy`` object within the application resources."""
+
+RESOURCE_MIGRATE = 'migrate'
+"""Name for the ``flask_migrate.Migrate`` object within the application resources."""
 
 
 FA_ICONS = {

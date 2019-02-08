@@ -17,5 +17,14 @@ __author__ = "Honza Mach <honza.mach.ml@gmail.com>"
 __version__ = "0.1.0"
 
 
+import click
+from flask.cli import FlaskGroup
+
+
 # Expose main application factory to current namespace
 from .app import create_app
+
+
+@click.group(cls = FlaskGroup, create_app = create_app)
+def cli():
+    """Command line interface for the MyDojo application."""

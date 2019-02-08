@@ -31,6 +31,7 @@ from babel import Locale
 import flask
 import flask_babel
 import flask_jsglue
+import flask_migrate
 
 #
 # Custom modules.
@@ -38,6 +39,7 @@ import flask_jsglue
 import mydojo.base
 import mydojo.const
 import mydojo.log
+import mydojo.db
 import mydojo.forms
 
 
@@ -279,6 +281,40 @@ def _setup_app_core(app):
 
     return app
 
+def _setup_app_db(app):
+    """
+    Setup database service for given MyDojo application.
+
+    :param mydojo.base.MyDojoApp app: MyDojo application to be modified.
+    :return: Modified MyDojo application
+    :rtype: mydojo.base.MyDojoApp
+    """
+
+    # Initialize database service and register it among the application resources
+    # for possible future use.
+    sqldb = mydojo.db.SQLDB
+    sqldb.init_app(app)
+    app.set_resource(mydojo.const.RESOURCE_SQLDB, sqldb)
+
+    # Initialize database migration service and register it among the application
+    # resources for possible future use.
+    migrate = flask_migrate.Migrate(
+        app       = app,
+        db        = sqldb,
+        directory = os.path.realpath(
+            os.path.join(
+                os.path.dirname(
+                    os.path.abspath(__file__)
+                ),
+                'migrations'
+            )
+        )
+    )
+    app.set_resource(mydojo.const.RESOURCE_MIGRATE, migrate)
+
+    app.logger.info("Connected to database via SQLAlchemy")
+
+    return app
 
 def _setup_app_babel(app):
     """
@@ -472,6 +508,7 @@ def create_app(
 
     _setup_app_logging(app)
     _setup_app_core(app)
+    _setup_app_db(app)
     _setup_app_babel(app)
     _setup_app_blueprints(app)
 

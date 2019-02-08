@@ -86,6 +86,27 @@ commands::
 	make help
 
 
+Producing database migrations
+````````````````````````````````````````````````````````````````````````````````
+
+To create new database migration update database model in :py:mod:`mydojo.db` as
+necessary and then execute following commands::
+
+	# Produce new migration version:
+	mydojo-cli db migrate -m "Change description: some additional description"
+
+	# Review and possibly update the newly generated migration in directory
+	# ``mydojo/migrations/versions/[something].py
+
+	# Apply the migration locally:
+	mydojo-cli db upgrade
+
+	# Optionally verify the current state of database schema:
+	mydojo-cli db history
+	mydojo-cli db current
+	mydojo-cli db show
+
+
 Checking code with Pyflakes
 ````````````````````````````````````````````````````````````````````````````````
 
