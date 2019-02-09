@@ -22,6 +22,8 @@ import json
 #
 # Flask related modules.
 #
+from werkzeug.security import generate_password_hash, check_password_hash
+
 import sqlalchemy
 import sqlalchemy.dialects.postgresql
 
@@ -279,6 +281,18 @@ class UserModel(SQLDB.Model, BaseMixin):  # pylint: disable=locally-disabled,too
         Returns ``True`` if the user has no role.
         """
         return len(self.roles) == 0
+
+    def set_password(self, password_plain):
+        """
+        Generate and set password hash from given plain text password.
+        """
+        self.password = generate_password_hash(password_plain)
+
+    def check_password(self, password_plain):
+        """
+        Check given plaintext password agains internal password hash.
+        """
+        return check_password_hash(self.password, password_plain)
 
 
 class GroupModel(SQLDB.Model, BaseMixin):

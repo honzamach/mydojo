@@ -43,8 +43,9 @@ user_cli = AppGroup('users')
 @click.argument('login', callback = validate_email)
 @click.argument('fullname')
 @click.option('--email', callback = validate_email, help = 'Optional email, login will be used as default')
+@click.password_option()
 @click.option('--enabled/--no-enabled', default=False)
-def users_create(login, fullname, email, enabled):
+def users_create(login, fullname, email, password, enabled):
     """
     Create user account.
     """
@@ -53,12 +54,15 @@ def users_create(login, fullname, email, enabled):
     sqlobj.login    = login
     sqlobj.fullname = fullname
     sqlobj.email    = email or login
+    if password:
+        sqlobj.set_password(password)
     sqlobj.enabled  = enabled
 
     click.echo("Creating new user account:")
     click.echo("    - Login:     {}".format(sqlobj.login))
     click.echo("    - Full name: {}".format(sqlobj.fullname))
     click.echo("    - Email:     {}".format(sqlobj.email))
+    click.echo("    - Password:  {}".format(sqlobj.password))
     click.echo("    - Enabled:   {}".format(sqlobj.enabled))
     try:
         mydojo.db.SQLDB.session.add(sqlobj)
@@ -88,6 +92,39 @@ def users_create(login, fullname, email, enabled):
                 "\n{}".format(exc),
                 fg = 'blue'
             )
+
+    except Exception:  # pylint: disable=locally-disabled,broad-except
+        mydojo.db.SQLDB.session.rollback()
+        click.echo(
+            traceback.TracebackException(*sys.exc_info())
+        )
+
+@user_cli.command('delete')
+@click.argument('login', callback = validate_email)
+def users_delete(login):
+    """
+    Delete user account.
+    """
+    click.echo("Deleting user account '{}'".format(login))
+    try:
+        item = mydojo.db.SQLDB.session.query(
+            mydojo.db.UserModel
+        ).filter(
+            mydojo.db.UserModel.login == login
+        ).one()
+
+        mydojo.db.SQLDB.session.delete(item)
+        mydojo.db.SQLDB.session.commit()
+        click.secho(
+            "[OK] User account was successfully deleted",
+            fg = 'green'
+        )
+
+    except Exception:  # pylint: disable=locally-disabled,broad-except
+        mydojo.db.SQLDB.session.rollback()
+        click.echo(
+            traceback.TracebackException(*sys.exc_info())
+        )
 
     except Exception:  # pylint: disable=locally-disabled,broad-except
         mydojo.db.SQLDB.session.rollback()

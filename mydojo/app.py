@@ -127,18 +127,33 @@ def _setup_app_core(app):
     @app.context_processor
     def jinja2_inject_functions():  # pylint: disable=locally-disabled,unused-variable,too-many-locals
         """
-        Register additional helpers into Jinja2 global template namespace. This
-        function will install following helpers:
-
-        get_icon
-            Reference for :py:func:`mydojo.app.get_icon`
-
-        get_datetime_utc
-            Reference for :py:func:`mydojo.app.get_datetime_utc`
-
-        get_datetime_local
-            Reference for :py:func:`mydojo.app.get_datetime_local`
+        Register additional helpers into Jinja2 global template namespace.
         """
+        def get_endpoints_dict():
+            """
+            Return dictionary of all registered application view endpoints.
+            """
+            return flask.current_app.view_classes
+
+        def get_endpoint_class(endpoint):
+            """
+            Return class reference to given view endpoint.
+
+            :param str endpoint: Name of the view endpoint.
+            """
+            return app.get_endpoint_class(endpoint)
+
+        def check_endpoint_exists(endpoint):
+            """
+            Check, that given application view endpoint exists and is registered within
+            the application.
+
+            :param str endpoint: Name of the view endpoint.
+            :return: ``True`` in case endpoint exists, ``False`` otherwise.
+            :rtype: bool
+            """
+            return endpoint in app.view_classes
+
         def get_icon(icon_name, default_icon = 'missing-icon'):
             """
             Get HTML icon markup for given icon. The icon will be looked up in
@@ -227,6 +242,10 @@ def _setup_app_core(app):
             )
 
         return dict(
+            get_endpoints_dict    = get_endpoints_dict,
+            get_endpoint_class    = get_endpoint_class,
+            check_endpoint_exists = check_endpoint_exists,
+
             get_icon          = get_icon,
             get_country_flag  = get_country_flag,
 

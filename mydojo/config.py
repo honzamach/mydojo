@@ -107,6 +107,9 @@ class Config:  # pylint: disable=locally-disabled,too-few-public-methods
     MYDOJO_LOGIN_MSGCAT = 'info'
     """Default login message category."""
 
+    MYDOJO_LOGIN_REDIRECT = 'index'
+    """Default redirection endpoint after login."""
+
     MYDOJO_LOGOUT_REDIRECT = 'index'
     """Default redirection endpoint after logout."""
 
@@ -117,7 +120,7 @@ class Config:  # pylint: disable=locally-disabled,too-few-public-methods
     """List of all languages (locales) supported by the MyDojo application."""
 
     MYDOJO_MODULES = [
-        'mydojo.blueprints.auth_dev',
+        'mydojo.blueprints.auth_pwd',
         'mydojo.blueprints.design'
     ]
     """List of requested application blueprints to be loaded during setup."""
@@ -156,6 +159,7 @@ class DevelopmentConfig(Config):  # pylint: disable=locally-disabled,too-few-pub
 
     MYDOJO_MODULES = [
         'mydojo.blueprints.auth_dev',
+        'mydojo.blueprints.auth_pwd',
         'mydojo.blueprints.design'
     ]
     """Overwritten default value from :py:const:`mydojo.config.Config.MYDOJO_MODULES`"""

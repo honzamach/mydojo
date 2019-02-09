@@ -20,9 +20,16 @@
                                     {{ _('Logout') }}
                                 </a>
                                 {%- else %}
-                                <a class="dropdown-item" href="{{ url_for('auth_dev.login') }}" title="{{ _('Login') }}">
+                                    {%- if check_endpoint_exists('auth_pwd.login') %}
+                                <a class="dropdown-item" href="{{ url_for('auth_pwd.login') }}" title="{{ _('Password login') }}">
                                     {{ _('Login') }}
                                 </a>
+                                    {%- endif %}
+                                    {%- if check_endpoint_exists('auth_dev.login') %}
+                                <a class="dropdown-item" href="{{ url_for('auth_dev.login') }}" title="{{ _('Developer login') }}">
+                                    {{ _('Login (dev)') }}
+                                </a>
+                                    {%- endif %}
                                 {%- endif %}
                             </div>
                         </li>

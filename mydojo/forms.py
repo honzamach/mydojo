@@ -21,7 +21,11 @@ import urllib.parse
 #
 # Flask related modules.
 #
+import wtforms
 import flask
+from flask_babel import gettext
+
+import mydojo.const
 
 
 #-------------------------------------------------------------------------------
@@ -66,3 +70,17 @@ def get_redirect_target(target_url = None, default_url = None, exclude_url = Non
         if _is_safe_url(target):
             return target
     raise RuntimeError("Unable to choose apropriate redirection target.")
+
+
+def check_email(form, field):  # pylint: disable=locally-disabled,unused-argument
+    """
+    Callback for validating user emails or account logins (usernames).
+    """
+    if mydojo.const.CRE_EMAIL.match(field.data):
+        return
+    raise wtforms.validators.ValidationError(
+        gettext(
+            'The "%(val)s" value does not look like valid email address.',
+            val = str(field.data)
+        )
+    )
