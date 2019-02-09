@@ -38,4 +38,4 @@ def setup_logging_file(app):
 
     app.logger.setLevel(logging.INFO)
     app.logger.addHandler(file_handler)
-    app.logger.info('MyDojo: Logging startup')
+    app.logger.debug('MyDojo: Logging services successfully started')

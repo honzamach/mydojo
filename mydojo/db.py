@@ -236,6 +236,50 @@ class UserModel(SQLDB.Model, BaseMixin):  # pylint: disable=locally-disabled,too
 
         return sqlobj
 
+    @property
+    def is_authenticated(self):
+        """
+        Mandatory interface required by the :py:mod:`flask_login` extension.
+        """
+        return True
+
+    @property
+    def is_active(self):
+        """
+        Mandatory interface required by the :py:mod:`flask_login` extension.
+        """
+        return self.enabled
+
+    @property
+    def is_anonymous(self):
+        """
+        Mandatory interface required by the :py:mod:`flask_login` extension.
+        """
+        return False
+
+    def get_id(self):
+        """
+        Mandatory interface required by the :py:mod:`flask_login` extension.
+        """
+        try:
+            return unicode(self.id)  # python 2
+        except NameError:
+            return str(self.id)  # python 3
+
+    def has_role(self, role):
+        """
+        Returns ``True`` if the user identifies with the specified role.
+
+        :param str role: A role name.
+        """
+        return role in self.roles
+
+    def has_no_role(self):
+        """
+        Returns ``True`` if the user has no role.
+        """
+        return len(self.roles) == 0
+
 
 class GroupModel(SQLDB.Model, BaseMixin):
     """

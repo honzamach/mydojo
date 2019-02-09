@@ -1,0 +1,121 @@
+{#- ----------------------------------------------------------------------------
+
+    Macro for rendering a form widget in default style.
+
+----------------------------------------------------------------------------- #}
+
+{%- macro render_form_item_default(form_item, with_errors = True) %}
+                                <div class="form-group{% if form_item.errors %}{{ ' has-error' }}{% endif %}">
+                                    {{ form_item.label }}
+                                    {{ form_item(class_='form-control') }}
+    {%- if with_errors %}
+        {%- for err in form_item.errors %}
+                                    <span class="help-block form-error">{{ get_icon('form-error') }} {{ err }}</span>{%- if not loop.last %}<br>{%- endif %}
+        {%- endfor %}
+    {%- endif %}
+                                </div>
+{%- endmacro %}
+
+
+{#- ----------------------------------------------------------------------------
+
+    Macro for rendering a form select widget with selectpicker class.
+
+----------------------------------------------------------------------------- #}
+
+{%- macro render_form_item_select(form_item, with_errors = True) %}
+                                <div class="form-group{% if form_item.errors %}{{ ' has-error' }}{% endif %}">
+                                    {{ form_item.label }}
+                                    {{ form_item(class_='form-control selectpicker',**{'data-live-search':'true', 'data-size': '10', 'data-selected-text-format': 'count > 3', 'data-none-selected-text': _('Nothing selected') }) }}
+    {%- if with_errors %}
+        {%- for err in form_item.errors %}
+                                    <span class="help-block form-error">{{ get_icon('form-error') }} {{ err }}</span>{%- if not loop.last %}<br>{%- endif %}
+        {%- endfor %}
+    {%- endif %}
+                                </div>
+{%- endmacro %}
+
+
+{#- ----------------------------------------------------------------------------
+
+    Macro for rendering a form widget with datetime selection class.
+
+----------------------------------------------------------------------------- #}
+
+{%- macro render_form_item_datetime(form_item, ident, with_errors = True) %}
+                                <div class="form-group{% if form_item.errors %}{{ ' has-error' }}{% endif %}">
+                                    {{ form_item.label }}
+                                    <div id="{{ ident }}" class="input-group date">
+                                        {{ form_item(class_='form-control') }}
+                                        <span class="input-group-addon">
+                                            {{ get_icon('calendar') }}
+                                        </span>
+                                    </div>
+    {%- if with_errors %}
+        {%- for err in form_item.errors %}
+                                    <span class="help-block form-error">{{ get_icon('form-error') }} {{ err }}</span>{%- if not loop.last %}<br>{%- endif %}
+        {%- endfor %}
+    {%- endif %}
+                                </div>
+{%- endmacro %}
+
+
+{#- ----------------------------------------------------------------------------
+
+    Macro for rendering a static form widget.
+
+----------------------------------------------------------------------------- #}
+
+{%- macro render_form_item_static(form_item_label, form_item_value) %}
+                                <div class="form-group">
+                                    <label class="control-label">{{ form_item_label }}</label>
+                                    <p class="form-control-static">{{ form_item_value }}</p>
+                                </div>
+{%- endmacro %}
+
+
+{#- ----------------------------------------------------------------------------
+
+    Macro for rendering a radio button form widget.
+
+----------------------------------------------------------------------------- #}
+
+{%- macro render_form_item_radiobutton(form_item, with_errors = True) %}
+                                <div class="form-group{% if form_item.errors %}{{ ' has-error' }}{% endif %}">
+                                    <div>
+                                        {{ form_item.label }}
+                                    </div>
+                                    <div class="btn-group btn-group-justified" data-toggle="buttons">
+    {%- for subfield in form_item %}
+                                        <span class="btn btn-default{% if subfield.checked %} active{% endif %}">
+                                            {{ subfield }} {{ subfield.label }}
+                                        </span>
+    {%- endfor %}
+
+                                    </div>
+    {%- if with_errors %}
+        {%- for err in form_item.errors %}
+                                    <span class="help-block form-error">{{ get_icon('form-error') }} {{ err }}</span>{%- if not loop.last %}<br>{%- endif %}
+        {%- endfor %}
+    {%- endif %}
+                                </div>
+{%- endmacro %}
+
+
+{#- ----------------------------------------------------------------------------
+
+    Macro for rendering a list of errors associated with given form widget.
+
+----------------------------------------------------------------------------- #}
+
+{%- macro render_form_errors(errors) %}
+{%- for err in errors %}
+<span class="help-block form-error">{{ get_icon('form-error') }} {{ err }}</span>{%- if not loop.last %}<br>{%- endif %}
+{%- endfor %}
+{%- endmacro %}
+
+{%- macro render_form_errors_labeled(item) %}
+{%- for err in item.errors %}
+<div><span class="help-block form-error">{{ get_icon('form-error') }} <strong>{{ item.label.text }}</strong> {{ err }}</span></div>
+{%- endfor %}
+{%- endmacro %}

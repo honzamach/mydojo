@@ -24,11 +24,13 @@ Module contents
 * :py:class:`MyDojoBlueprint`
 * :py:class:`HTMLViewMixin`
 * :py:class:`AJAXViewMixin`
+* :py:class:`SQLAlchemyViewMixin`
 * :py:class:`MyDojoBaseView`
 
     * :py:class:`MyDojoFileNameView`
     * :py:class:`MyDojoFileIdView`
     * :py:class:`MyDojoRenderableView`
+    * :py:class:`MyDojoSimpleView`
 """
 
 
@@ -42,15 +44,18 @@ import weakref
 #
 # Flask related modules.
 #
+import sqlalchemy
 import werkzeug.routing
 import werkzeug.utils
 import flask
 import flask.views
+import flask_login
 
 #
 # Custom modules.
 #
 import mydojo.const
+import mydojo.db
 from mydojo.forms import get_redirect_target
 
 
@@ -77,7 +82,7 @@ class MyDojoApp(flask.Flask):
     def __init__(self, import_name, **kwargs):
         super().__init__(import_name, **kwargs)
 
-        self.csrf      = None
+        self.csrf = None
 
         self.view_classes = {}
         self.resources    = {}
@@ -125,13 +130,74 @@ class MyDojoApp(flask.Flask):
             if hasattr(mod, 'get_blueprint'):
                 self.register_blueprint(mod.get_blueprint())
             else:
-                raise MyDojoAppException("Invalid blueprint module '{}', does not provide the 'get_blueprint' factory method.".format(name))
+                raise MyDojoAppException(
+                    "Invalid blueprint module '{}', does not provide the 'get_blueprint' factory method.".format(name)
+                )
 
     def log_exception_with_label(self, tbexc, label = ''):
         """
         Log given exception traceback into application logger.
         """
         self.logger.error('%s%s', label, ''.join(tbexc.format()))  # pylint: disable=locally-disabled,no-member
+
+    def has_endpoint(self, endpoint):
+        """
+        Check if given routing endpoint is available.
+
+        :param str endpoint: Application routing endpoint.
+        :return: ``True`` in case endpoint exists, ``False`` otherwise.
+        :rtype: bool
+        """
+        return endpoint in self.view_classes
+
+    def get_endpoint_class(self, endpoint, quiet = False):
+        """
+        Get reference to view class registered to given routing endpoint.
+
+        :param str endpoint: Application routing endpoint.
+        :return: Reference to view class.
+        :rtype: class
+        """
+        if not endpoint in self.view_classes:
+            if quiet:
+                return None
+            raise MyDojoAppException(
+                "Unknown endpoint name '{}'.".format(endpoint)
+            )
+        return self.view_classes[endpoint]
+
+    def can_access_endpoint(self, endpoint, item = None):
+        """
+        Check, that the current user can access given endpoint/view.
+
+        :param str endpoint: Application routing endpoint.
+        :param item: Optional item.
+        :return: ``True`` in case user can access the endpoint, ``False`` otherwise.
+        :rtype: bool
+        """
+        try:
+            view_class = self.get_endpoint_class(endpoint)
+
+            # Reject unauthenticated users in case view requires authentication.
+            if view_class.authentication:
+                if not flask_login.current_user.is_authenticated:
+                    return False
+
+            # Check view authorization rules.
+            if view_class.authorization:
+                for auth_rule in view_class.authorization:
+                    if not auth_rule.can():
+                        return False
+
+            # Check item action authorization callback, if exists.
+            if hasattr(view_class, 'authorize_item_action'):
+                if not view_class.authorize_item_action(item):
+                    return False
+
+            return True
+
+        except MyDojoAppException:
+            return False
 
     def get_resource(self, name):
         """
@@ -187,6 +253,15 @@ class MyDojoBlueprint(flask.Blueprint):
 
         # Obtain view function.
         view_func = view_class.as_view(view_class.get_view_name())
+
+        # Apply authentication decorators (if requested).
+        if view_class.authentication:
+            view_func = flask_login.login_required(view_func)
+
+        # Apply authorization decorators (if requested).
+        if view_class.authorization:
+            for auth in view_class.authorization:
+                view_func = auth.require(403)(view_func)
 
         # Store the reference to view class to internal registry, so it can be
         # looked up within the application. This feature can be then used for
@@ -324,6 +399,94 @@ class AJAXViewMixin:
             self.process_response_context(self.response_context)
         )
 
+class SQLAlchemyViewMixin:
+    """
+    Mixin class providing generic interface for interacting with SQL database
+    backend through SQLAlchemy library.
+    """
+
+    @property
+    def dbmodel(self):
+        """
+        This property must be implemented in each subclass to return reference to
+        appropriate model class based on *SQLAlchemy* declarative base.
+        """
+        raise NotImplementedError()
+
+    @property
+    def search_by(self):
+        """
+        Return model`s attribute (column) according to which to search for the item.
+        """
+        return self.dbmodel.id
+
+    @property
+    def dbsession(self):
+        """
+        This property contains the reference to current *SQLAlchemy* database session.
+        """
+        return mydojo.db.SQLDB.session
+
+    def dbquery(self, dbmodel = None):
+        """
+        This property contains the reference to *SQLAlchemy* query object appropriate
+        for particular ``dbmodel`` property.
+        """
+        return self.dbsession.query(dbmodel or self.dbmodel)
+
+    def dbcolumn_min(self, dbcolumn):
+        """
+        Find and return the minimal value for given table column.
+        """
+        result = self.dbsession.query(sqlalchemy.func.min(dbcolumn)).one_or_none()
+        if result:
+            return result[0]
+        return None
+
+    def dbcolumn_max(self, dbcolumn):
+        """
+        Find and return the maximal value for given table column.
+        """
+        result = self.dbsession.query(sqlalchemy.func.max(dbcolumn)).one_or_none()
+        if result:
+            return result[0]
+        return None
+
+    @staticmethod
+    def build_query(query, model, form_args):  # pylint: disable=locally-disabled,unused-argument
+        """
+        *Hook method*. Modify given query according to the given arguments.
+        """
+        return query
+
+    def fetch(self, item_id):
+        """
+        Fetch item with given primary identifier from the database.
+        """
+        return self.dbquery().filter(self.search_by == item_id).one()
+
+    def fetch_first(self, item_id):
+        """
+        Fetch item with given primary identifier from the database.
+        """
+        return self.dbquery().filter(self.search_by == item_id).first()
+
+    def search(self, form_args):
+        """
+        Perform actual search with given query.
+        """
+        query = self.build_query(self.dbquery(), self.dbmodel, form_args)
+
+        # Adjust the query according to the paging parameters.
+        if 'limit' in form_args and form_args['limit']:
+            query = query.limit(int(form_args['limit']))
+            if 'page' in form_args and form_args['page'] and int(form_args['page']) > 1:
+                query = query.offset(
+                    (int(form_args['page']) - 1) * int(form_args['limit'])
+                )
+
+        return query.all()
+
 
 #-------------------------------------------------------------------------------
 
@@ -342,6 +505,34 @@ class MyDojoBaseView(flask.views.View):
     """
     Name of the parent module (blueprint). Will be set up during the process
     of registering the view into the blueprint in :py:func:`mydojo.base.MyDojoBlueprint.register_view_class`.
+    """
+
+    authentication = False
+    """
+    Similar to the ``decorators`` mechanism in Flask pluggable views, you may use
+    this class variable to specify, that the view is protected by authentication.
+    During the process of registering the view into the blueprint in
+    :py:func:`mydojo.base.MyDojoBlueprint.register_view_class` the view will be
+    automatically decorated with :py:func:`flask_login.login_required` decorator.
+
+    The advantage of using this in favor of ``decorators`` is that the application
+    menu can automatically hide/show items inaccessible to current user.
+
+    This is a scalar variable that must contain boolean ``True`` or ``False``.
+    """
+
+    authorization  = ()
+    """
+    Similar to the ``decorators`` mechanism in Flask pluggable views, you may use
+    this class variable to specify, that the view is protected by authorization.
+    During the process of registering the view into the blueprint in
+    :py:func:`mydojo.base.MyDojoBlueprint.register_view_class` the view will be
+    automatically decorated with given authorization decorators.
+
+    The advantage of using this in favor of ``decorators`` is that the application
+    menu can automatically hide/show items inaccessible to current user.
+
+    This is a list variable that must contain list of desired decorators.
     """
 
     @classmethod
@@ -371,6 +562,20 @@ class MyDojoBaseView(flask.views.View):
         :rtype: str
         """
         return '{}.{}'.format(cls.module_name, cls.get_view_name())
+
+    @classmethod
+    def get_view_icon(cls):
+        """
+        Return menu entry icon name for the view. Given name will be used as index
+        to built-in icon registry.
+
+        Default implementation generates the icon name by concatenating the prefix
+        ``module-`` with module name.
+
+        :return: Menu entry icon for the view.
+        :rtype: str
+        """
+        return 'module-{}'.format(cls.module_name)
 
     #---------------------------------------------------------------------------
 

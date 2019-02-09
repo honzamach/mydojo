@@ -32,6 +32,8 @@ import flask
 import flask_babel
 import flask_jsglue
 import flask_migrate
+import flask_login
+import flask_principal
 
 #
 # Custom modules.
@@ -40,6 +42,7 @@ import mydojo.base
 import mydojo.const
 import mydojo.log
 import mydojo.db
+import mydojo.auth
 import mydojo.forms
 import mydojo.command
 
@@ -313,9 +316,178 @@ def _setup_app_db(app):
     )
     app.set_resource(mydojo.const.RESOURCE_MIGRATE, migrate)
 
-    app.logger.info("Connected to database via SQLAlchemy")
+    app.logger.debug("MyDojo: Connected to database via SQLAlchemy")
 
     return app
+
+def _setup_app_auth(app):
+    """
+    Setup authentication features for MyDojo application.
+
+    :param mydojo.base.MyDojoApp app: MyDojo application to be modified.
+    :return: Modified MyDojo application
+    :rtype: mydojo.base.MyDojoApp
+    """
+
+    mydojo.auth.LOGIN_MANAGER.init_app(app)
+    mydojo.auth.LOGIN_MANAGER.login_view = app.config['MYDOJO_LOGIN_VIEW']
+    mydojo.auth.LOGIN_MANAGER.login_message = flask_babel.gettext("Please log in to access this page.")
+    mydojo.auth.LOGIN_MANAGER.login_message_category = app.config['MYDOJO_LOGIN_MSGCAT']
+
+    @mydojo.auth.LOGIN_MANAGER.user_loader
+    def load_user(user_id):  # pylint: disable=locally-disabled,unused-variable
+        """
+        Flask-Login callback for loading current user`s data.
+        """
+        return mydojo.db.SQLDB.session.query(
+            mydojo.db.UserModel
+        ).filter(
+            mydojo.db.UserModel.id == user_id
+        ).one_or_none()
+
+    @app.route('/logout')
+    @flask_login.login_required
+    def logout():  # pylint: disable=locally-disabled,unused-variable
+        """
+        Flask-Login callback for logging out current user.
+        """
+        flask.current_app.logger.info(
+            "User '{}' just logged out.".format(
+                str(flask_login.current_user)
+            )
+        )
+        flask_login.logout_user()
+        flask.flash(
+            flask_babel.gettext('You have been successfully logged out.'),
+            mydojo.const.FLASH_SUCCESS
+        )
+
+        # Remove session keys set by Flask-Principal.
+        for key in ('identity.name', 'identity.auth_type'):
+            flask.session.pop(key, None)
+
+        # Tell Flask-Principal the identity has just changed.
+        flask_principal.identity_changed.send(
+            flask.current_app._get_current_object(),  # pylint: disable=locally-disabled,protected-access
+            identity = flask_principal.AnonymousIdentity()
+        )
+
+        # Redirect user to after-logout page.
+        return flask.redirect(
+            flask.url_for(
+                flask.current_app.config['MYDOJO_LOGOUT_REDIRECT']
+            )
+        )
+
+    return app
+
+def _setup_app_acl(app):
+    """
+    Setup authorization and ACL features for MyDojo application.
+
+    :param mydojo.base.MyDojoApp app: MyDojo application to be modified.
+    :return: Modified MyDojo application
+    :rtype: mydojo.base.MyDojoApp
+    """
+    mydojo.auth.PRINCIPAL.init_app(app)
+
+    @flask_principal.identity_loaded.connect_via(app)
+    def on_identity_loaded(sender, identity):  # pylint: disable=locally-disabled,unused-variable,unused-argument
+        """
+        Flask-Principal signal callback for populating user identity object after
+        login.
+        """
+        # Set the identity user object.
+        identity.user = flask_login.current_user
+
+        if not flask_login.current_user.is_authenticated:
+            flask.current_app.logger.debug(
+                "Loaded ACL identity for anonymous user '{}'.".format(
+                    str(flask_login.current_user)
+                )
+            )
+            return
+        flask.current_app.logger.debug(
+            "Loading ACL identity for user '{}'.".format(
+                str(flask_login.current_user)
+            )
+        )
+
+        # Add the UserNeed to the identity.
+        if hasattr(flask_login.current_user, 'get_id'):
+            identity.provides.add(
+                flask_principal.UserNeed(flask_login.current_user.id)
+            )
+
+        # Assuming the UserModel has a list of roles, update the identity with
+        # the roles that the user provides.
+        if hasattr(flask_login.current_user, 'roles'):
+            for role in flask_login.current_user.roles:
+                identity.provides.add(
+                    flask_principal.RoleNeed(role)
+                )
+
+        # Assuming the UserModel has a list of group memberships, update the
+        # identity with the groups that the user is member of.
+        if hasattr(flask_login.current_user, 'memberships'):
+            for group in flask_login.current_user.memberships:
+                identity.provides.add(
+                    mydojo.auth.MembershipNeed(group.id)
+                )
+
+        # Assuming the UserModel has a list of group managements, update the
+        # identity with the groups that the user is manager of.
+        if hasattr(flask_login.current_user, 'managements'):
+            for group in flask_login.current_user.managements:
+                identity.provides.add(
+                    mydojo.auth.ManagementNeed(group.id)
+                )
+
+    @app.context_processor
+    def utility_acl_processor():  # pylint: disable=locally-disabled,unused-variable
+        """
+        Register additional helpers related to authorization into Jinja global
+        namespace to enable them within the templates.
+        """
+        def can_access_endpoint(endpoint, item = None):
+            """
+            Check if currently logged-in user can access given endpoint/view.
+
+            :param str endpoint: Name of the application endpoint.
+            :param item: Optional item for additional validations.
+            :return: ``True`` in case user can access the endpoint, ``False`` otherwise.
+            :rtype: bool
+            """
+            return flask.current_app.can_access_endpoint(endpoint, item)
+
+        def permission_can(permission_name):
+            """
+            Manually check currently logged-in user for given permission.
+
+            :param str permission_name: Name of the permission.
+            :return: Check result.
+            :rtype: bool
+            """
+            return mydojo.auth.PERMISSIONS[permission_name].can()
+
+        def is_it_me(user_model):
+            """
+            Check if given user account is mine.
+
+            :param mydojo.db.UserModel user_model: User account to check against
+            :return: ``True`` in case account identifiers match, ``False`` otherwise.
+            :rtype: bool
+            """
+            return user_model.id == flask_login.current_user.id
+
+        return dict(
+            can_access_endpoint = can_access_endpoint,
+            permission_can      = permission_can,
+            is_it_me            = is_it_me
+        )
+
+    return app
+
 
 def _setup_app_babel(app):
     """
@@ -523,6 +695,7 @@ def create_app(
     _setup_app_logging(app)
     _setup_app_core(app)
     _setup_app_db(app)
+    _setup_app_auth(app)
     _setup_app_babel(app)
     _setup_app_blueprints(app)
     _setup_app_cli(app)

@@ -4,6 +4,31 @@
 
 ############################################################################ -#}
 
+{%- macro render_submenu_auth() -%}
+                        <!-- Authenticated menu widget - BEGIN ---------------->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="dropdown-auth" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                {%- if current_user.is_authenticated %}
+                                {{ current_user.login }}
+                                {%- else %}
+                                {{ _('Anonymous') }}
+                                {%- endif %}
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="dropdown-auth">
+                                {%- if current_user.is_authenticated %}
+                                <a class="dropdown-item" href="{{ url_for('logout') }}" title="{{ _('Logout') }}">
+                                    {{ _('Logout') }}
+                                </a>
+                                {%- else %}
+                                <a class="dropdown-item" href="{{ url_for('auth_dev.login') }}" title="{{ _('Login') }}">
+                                    {{ _('Login') }}
+                                </a>
+                                {%- endif %}
+                            </div>
+                        </li>
+                        <!-- Authenticated menu widget - END ------------------>
+{%- endmacro %}
+
 {#-
 
     Render the locale switcher widget into application main menu.

@@ -55,6 +55,9 @@ ROLE_DEVELOPER = 'developer'
 ROLE_ADMIN = 'admin'
 """Name of the 'admin' role."""
 
+ROLE_ANY = 'any'
+"""Name of the 'any' role."""
+
 ROLES = [ROLE_USER, ROLE_DEVELOPER, ROLE_ADMIN]
 """List of valid user roles."""
 
@@ -75,6 +78,12 @@ RESOURCE_SQLDB = 'sqldb'
 RESOURCE_MIGRATE = 'migrate'
 """Name for the ``flask_migrate.Migrate`` object within the application resources."""
 
+RESOURCE_LOGIN_MANAGER = 'login_manager'
+"""Name for the ``flask_login.LoginManager`` object within the application resources."""
+
+RESOURCE_PRINCIPAL = 'principal'
+"""Name for the ``flask_principal.Principal`` object within the application resources."""
+
 
 FA_ICONS = {
 
@@ -82,17 +91,27 @@ FA_ICONS = {
     # General icons.
     #
     'missing-icon': '<i class="fas fa-fw fa-question" title="Missing icon"></i>',
+    'login':        '<i class="fas fa-fw fa-sign-in-alt"></i>',
+    'logout':       '<i class="fas fa-fw fa-sign-out-alt"></i>',
+    'register':     '<i class="fas fa-fw fa-user-plus"></i>',
+    'help':         '<i class="fas fa-fw fa-question-circle"></i>',
     'language':     '<i class="fas fa-fw fa-globe"></i>',
+
+    'role-anonymous':  '<i class="fas fa-fw fa-user-secret"></i>',
+    'role-user':       '<i class="fas fa-fw fa-user"></i>',
+    'role-developer':  '<i class="fas fa-fw fa-user-md"></i>',
+    'role-maintainer': '<i class="fas fa-fw fa-user-tie"></i>',
+    'role-admin':      '<i class="fas fa-fw fa-user-ninja"></i>',
 
     #
     # Main site section icons.
     #
-    'section-home':           '<i class="fas fa-fw fa-home"></i>',
+    'section-home': '<i class="fas fa-fw fa-home"></i>',
 
     #
     # Built-in module icons.
     #
-    'module-design':             '<i class="fas fa-fw fa-palette"></i>',
+    'module-design': '<i class="fas fa-fw fa-palette"></i>',
 
 
     #

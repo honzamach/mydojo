@@ -75,10 +75,14 @@ setup(
         'flask-babel==0.11.2',
         'flask-debugtoolbar==0.10.1',
         'flask-jsglue==0.3.1',
+        'flask-login==0.4.1',
         'flask-migrate==2.2.1',
+        'flask-principal==0.4.0',
         'flask-sqlalchemy==2.3.2',
+        'flask-wtf==0.14.2'
         'jinja2==2.10',
-        'pytz==2018.5'
+        'pytz==2018.5',
+        'wtforms==2.2.1'
     ],
     # Add development requirements as extras. This way it is possible to install
     # the package for development locally with following command:

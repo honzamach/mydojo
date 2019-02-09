@@ -94,6 +94,22 @@ class Config:  # pylint: disable=locally-disabled,too-few-public-methods
     # MyDojo custom configurations.
     #
 
+    ROLES = [
+        mydojo.const.ROLE_USER,
+        mydojo.const.ROLE_DEVELOPER,
+        mydojo.const.ROLE_ADMIN
+    ]
+    """List of all user roles supported by the MyDojo application."""
+
+    MYDOJO_LOGIN_VIEW = 'auth_dev.login'
+    """Default login view."""
+
+    MYDOJO_LOGIN_MSGCAT = 'info'
+    """Default login message category."""
+
+    MYDOJO_LOGOUT_REDIRECT = 'index'
+    """Default redirection endpoint after logout."""
+
     MYDOJO_LOCALES = collections.OrderedDict([
         ('en', 'English'),
         ('cs', 'Česky')
@@ -101,6 +117,7 @@ class Config:  # pylint: disable=locally-disabled,too-few-public-methods
     """List of all languages (locales) supported by the MyDojo application."""
 
     MYDOJO_MODULES = [
+        'mydojo.blueprints.auth_dev',
         'mydojo.blueprints.design'
     ]
     """List of requested application blueprints to be loaded during setup."""
@@ -138,6 +155,7 @@ class DevelopmentConfig(Config):  # pylint: disable=locally-disabled,too-few-pub
     #
 
     MYDOJO_MODULES = [
+        'mydojo.blueprints.auth_dev',
         'mydojo.blueprints.design'
     ]
     """Overwritten default value from :py:const:`mydojo.config.Config.MYDOJO_MODULES`"""
