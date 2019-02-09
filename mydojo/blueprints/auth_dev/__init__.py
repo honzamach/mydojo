@@ -79,14 +79,14 @@ class LoginView(HTMLViewMixin, SQLAlchemyViewMixin, MyDojoSimpleView):
     @classmethod
     def get_view_name(cls):
         """
-        *Interface implementation* of :py:func:`mydojo.base.HawatBaseView.get_view_name`.
+        *Interface implementation* of :py:func:`mydojo.base.MyDojoBaseView.get_view_name`.
         """
         return 'login'
 
     @classmethod
     def get_view_icon(cls):
         """
-        *Interface implementation* of :py:func:`mydojo.base.HawatBaseView.get_view_icon`.
+        *Interface implementation* of :py:func:`mydojo.base.MyDojoBaseView.get_view_icon`.
         """
         return 'login'
 
@@ -135,14 +135,20 @@ class LoginView(HTMLViewMixin, SQLAlchemyViewMixin, MyDojoSimpleView):
                     mydojo.const.FLASH_SUCCESS
                 )
                 self.logger.info(
-                    "User '{}' successfully logged in with 'auth_dev'.".format(user.login)
+                    "User '{}' successfully logged in with 'auth_dev'.".format(
+                        user.login
+                    )
                 )
 
                 # Redirect user back to original page.
                 return self.redirect(default_url = flask.url_for('index'))
 
             except sqlalchemy.orm.exc.MultipleResultsFound:
-                self.logger.error("Multiple results found for user login '{}'.".format(form.login.data))
+                self.logger.error(
+                    "Multiple results found for user login '{}'.".format(
+                        form.login.data
+                    )
+                )
                 self.abort(500)
 
             except sqlalchemy.orm.exc.NoResultFound:
@@ -153,15 +159,17 @@ class LoginView(HTMLViewMixin, SQLAlchemyViewMixin, MyDojoSimpleView):
 
             except Exception:  # pylint: disable=locally-disabled,broad-except
                 self.flash(
-                    gettext("Unable to perform developer login as '{}'.".format(form.login.data)),
+                    gettext(
+                        "Unable to perform developer login as '{}'.".format(
+                            form.login.data
+                        )
+                    ),
                     mydojo.const.FLASH_FAILURE
                 )
                 flask.current_app.log_exception_with_label(
                     traceback.TracebackException(*sys.exc_info()),
                     gettext('Unable to perform developer login.'),
                 )
-
-
 
         self.response_context.update(
             form = form,
