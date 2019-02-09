@@ -22,15 +22,15 @@ Module contents
 
 * :py:class:`MyDojoApp`
 * :py:class:`MyDojoBlueprint`
-* :py:class:`HTMLViewMixin`
-* :py:class:`AJAXViewMixin`
-* :py:class:`SQLAlchemyViewMixin`
-* :py:class:`MyDojoBaseView`
+* :py:class:`HTMLMixin`
+* :py:class:`AJAXMixin`
+* :py:class:`SQLAlchemyMixin`
+* :py:class:`BaseView`
 
-    * :py:class:`MyDojoFileNameView`
-    * :py:class:`MyDojoFileIdView`
-    * :py:class:`MyDojoRenderableView`
-    * :py:class:`MyDojoSimpleView`
+    * :py:class:`FileNameView`
+    * :py:class:`FileIDView`
+    * :py:class:`RenderableView`
+    * :py:class:`SimpleView`
 """
 
 
@@ -245,7 +245,7 @@ class MyDojoBlueprint(flask.Blueprint):
         """
         Register given view class into the internal blueprint registry.
 
-        :param mydojo.base.MyDojoBaseView view_class: View class (not instance!)
+        :param mydojo.base.BaseView view_class: View class (not instance!)
         :param str route_spec: Routing information for the view.
         """
         view_class.module_ref  = weakref.ref(self)
@@ -275,10 +275,10 @@ class MyDojoBlueprint(flask.Blueprint):
 #-------------------------------------------------------------------------------
 
 
-class HTMLViewMixin:
+class HTMLMixin:
     """
     Mixin class enabling rendering responses as HTML. Use it in your custom view
-    classess based on :py:class:`mydojo.base.MyDojoRenderableView` to provide the
+    classess based on :py:class:`mydojo.base.RenderableView` to provide the
     ability to render Jinja2 template files into HTML responses.
     """
 
@@ -326,10 +326,10 @@ class HTMLViewMixin:
         )
 
 
-class AJAXViewMixin:
+class AJAXMixin:
     """
     Mixin class enabling rendering responses as JSON documents. Use it in your
-    custom view classess based on based on :py:class:`mydojo.base.MyDojoRenderableView`
+    custom view classess based on based on :py:class:`mydojo.base.RenderableView`
     to provide the ability to generate JSON responses.
     """
 
@@ -399,7 +399,7 @@ class AJAXViewMixin:
             self.process_response_context(self.response_context)
         )
 
-class SQLAlchemyViewMixin:
+class SQLAlchemyMixin:
     """
     Mixin class providing generic interface for interacting with SQL database
     backend through SQLAlchemy library.
@@ -491,7 +491,7 @@ class SQLAlchemyViewMixin:
 #-------------------------------------------------------------------------------
 
 
-class MyDojoBaseView(flask.views.View):
+class BaseView(flask.views.View):
     """
     Base class for all custom MyDojo application views.
     """
@@ -587,7 +587,7 @@ class MyDojoBaseView(flask.views.View):
         return flask.current_app.logger
 
 
-class MyDojoFileNameView(MyDojoBaseView):
+class FileNameView(BaseView):
     """
     Base class for direct file access views. These views can be used to access
     and serve files from arbitrary filesystem directories (that are accessible to
@@ -643,13 +643,13 @@ class MyDojoFileNameView(MyDojoBaseView):
         )
 
 
-class MyDojoFileIdView(MyDojoBaseView):
+class FileIDView(BaseView):
     """
     Base class for indirrect file access views. These views can be used to access
     and serve files from arbitrary filesystem directories (that are accessible to
     application process). This can be very usefull for serving files like charts,
     that are periodically generated into configurable and changeable location.
-    The difference between this view class and :py:class:`MyDojoFileNameView` is,
+    The difference between this view class and :py:class:`FileNameView` is,
     that is this case some kind of identifier is used to access the file and
     provided class method is responsible for translating this identifier into
     real file name.
@@ -712,7 +712,7 @@ class MyDojoFileIdView(MyDojoBaseView):
         )
 
 
-class MyDojoRenderableView(MyDojoBaseView):  # pylint: disable=locally-disabled,abstract-method
+class RenderableView(BaseView):  # pylint: disable=locally-disabled,abstract-method
     """
     Base class for all views, that are rendering content based on Jinja2 templates
     or returning JSON/XML data.
@@ -797,14 +797,14 @@ class MyDojoRenderableView(MyDojoBaseView):  # pylint: disable=locally-disabled,
         raise NotImplementedError()
 
 
-class MyDojoSimpleView(MyDojoRenderableView):  # pylint: disable=locally-disabled,abstract-method
+class SimpleView(RenderableView):  # pylint: disable=locally-disabled,abstract-method
     """
     Base class for simple views. These are the most, well, simple views, that are
     rendering single template file or directly returning some JSON/XML data without
     any user parameters.
 
     In most use cases, it should be enough to just enhance the default implementation
-    of :py:func:`mydojo.base.MyDojoRenderableView.get_response_context` to inject
+    of :py:func:`mydojo.base.RenderableView.get_response_context` to inject
     some additional variables into the template.
     """
 

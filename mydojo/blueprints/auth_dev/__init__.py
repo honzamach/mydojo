@@ -61,7 +61,7 @@ from flask_babel import gettext
 #
 import mydojo.const
 import mydojo.forms
-from mydojo.base import HTMLViewMixin, SQLAlchemyViewMixin, MyDojoSimpleView, MyDojoBlueprint
+from mydojo.base import HTMLMixin, SQLAlchemyMixin, SimpleView, MyDojoBlueprint
 from mydojo.db import UserModel
 from mydojo.blueprints.auth_dev.forms import LoginForm
 
@@ -70,7 +70,7 @@ BLUEPRINT_NAME = 'auth_dev'
 """Name of the blueprint as module global constant."""
 
 
-class LoginView(HTMLViewMixin, SQLAlchemyViewMixin, MyDojoSimpleView):
+class LoginView(HTMLMixin, SQLAlchemyMixin, SimpleView):
     """
     View enabling special developer login.
     """
@@ -79,21 +79,21 @@ class LoginView(HTMLViewMixin, SQLAlchemyViewMixin, MyDojoSimpleView):
     @classmethod
     def get_view_name(cls):
         """
-        *Interface implementation* of :py:func:`mydojo.base.MyDojoBaseView.get_view_name`.
+        *Interface implementation* of :py:func:`mydojo.base.BaseView.get_view_name`.
         """
         return 'login'
 
     @classmethod
     def get_view_icon(cls):
         """
-        *Interface implementation* of :py:func:`mydojo.base.MyDojoBaseView.get_view_icon`.
+        *Interface implementation* of :py:func:`mydojo.base.BaseView.get_view_icon`.
         """
         return 'login'
 
     @property
     def dbmodel(self):
         """
-        *Interface implementation* of :py:func:`mydojo.base.SQLAlchemyViewMixin.dbmodel`.
+        *Interface implementation* of :py:func:`mydojo.base.SQLAlchemyMixin.dbmodel`.
         """
         return UserModel
 
