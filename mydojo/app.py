@@ -41,6 +41,7 @@ import mydojo.const
 import mydojo.log
 import mydojo.db
 import mydojo.forms
+import mydojo.command
 
 
 #-------------------------------------------------------------------------------
@@ -471,6 +472,19 @@ def _setup_app_blueprints(app):
     return app
 
 
+def _setup_app_cli(app):
+    """
+    Setup application blueprints.
+
+    :param mydojo.base.MyDojoApp app: MyDojo application to be modified.
+    :return: Modified MyDojo application
+    :rtype: mydojo.base.MyDojoApp
+    """
+    mydojo.command.setup_cli(app)
+
+    return app
+
+
 #-------------------------------------------------------------------------------
 
 
@@ -511,5 +525,6 @@ def create_app(
     _setup_app_db(app)
     _setup_app_babel(app)
     _setup_app_blueprints(app)
+    _setup_app_cli(app)
 
     return app
