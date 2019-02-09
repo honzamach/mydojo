@@ -117,6 +117,8 @@ def _setup_app_core(app):
         Inject additional variables into Jinja2 global template namespace.
         """
         return dict(
+            mydojo_appname     = 'MyDojo',
+            mydojo_appslogan   = flask_babel.lazy_gettext('My personal internet dojo'),
             mydojo_version     = mydojo.__version__,
             mydojo_current_app = flask.current_app,
             mydojo_logger      = flask.current_app.logger,

@@ -60,7 +60,7 @@
         ----------------------------------------------------------------------->
         <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
-        <title>{% block title %}{% endblock %} - MyDojo</title>
+        <title>{% block title %}{% endblock %} - {{ mydojo_appname }}</title>
 {%- endblock head %}
     </head>
 
@@ -84,8 +84,8 @@
         <nav class="navbar navbar-expand-md navbar-dark bg-dark">
             <div class="container container-navbar">
                 <a class="navbar-brand" href="{{ url_for('index') }}">
-                    <img src="{{ url_for('static', filename='mydojo-icon-32x32.png') }}" alt="MyDojo logo" width="32" height="32" style="display: inline-block">
-                    MyDojo
+                    <img src="{{ url_for('static', filename='mydojo-icon-32x32.png') }}" alt="{{ mydojo_appname }} logo" width="32" height="32" style="display: inline-block" data-toggle="tooltip" title="{{ mydojo_appname }} - {{ mydojo_appslogan }}">
+                    <!-- {{ mydojo_appname }} -->
                 </a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-main" aria-controls="navbar-main" aria-expanded="false" aria-label="{{ _('Toggle navigation') }}">
                     <span class="navbar-toggler-icon"></span>
@@ -139,9 +139,20 @@
         <!-- Footer container - BEGIN ----------------------------------------->
         <div class="container container-footer" id="footer">
             <hr>
-            <span data-toggle="tooltip" title="{{ _('Page generated at: ') }}">{{ get_icon('clock') }}</span><span class="d-none d-lg-inline"> <em>{{ _('Page generated at: ') }}</em></span> {{ babel_format_datetime(mydojo_cdt_utc) }} &#124;
-            <span data-toggle="tooltip" title="{{ _('Page generated in: ') }}">{{ get_icon('stopwatch') }}</span><span class="d-none d-lg-inline"> <em>{{ _('Page generated in: ') }}</em></span> {{ get_timedelta(g.requeststart) }}
+            <span data-toggle="tooltip" title="{{ _('Page generated at: ') }}">
+                {{ get_icon('clock') }}
+            </span>
+            <!-- <span class="d-none d-lg-inline"> <em>{{ _('Page generated at: ') }}</em></span> -->
+            {{ babel_format_datetime(mydojo_cdt_utc) }}
+            <span data-toggle="tooltip" title="{{ _('Page generated in: ') }}">
+                {{ get_icon('stopwatch') }}
+            </span>
+            <!-- <span class="d-none d-lg-inline"> <em>{{ _('Page generated in: ') }}</em></span> -->
+            {{ get_timedelta(g.requeststart) }}
             <br>
+            <span data-toggle="tooltip" title="{{ mydojo_appname }} v{{ mydojo_version }}">
+                {{ mydojo_appname }} v{{ mydojo_version }}
+            </span> &#124;
             &copy; {{ _('since') }} 2018 &#124;
             {{ _('Powered by: ') }}
             <a data-toggle="tooltip" title="Bootstrap" href="https://getbootstrap.com/">
