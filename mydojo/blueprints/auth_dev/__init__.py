@@ -78,23 +78,17 @@ class LoginView(HTMLMixin, SQLAlchemyMixin, SimpleView):
 
     @classmethod
     def get_view_name(cls):
-        """
-        *Interface implementation* of :py:func:`mydojo.base.BaseView.get_view_name`.
-        """
+        """*Implementation* of :py:func:`mydojo.base.BaseView.get_view_name`."""
         return 'login'
 
     @classmethod
     def get_view_icon(cls):
-        """
-        *Interface implementation* of :py:func:`mydojo.base.BaseView.get_view_icon`.
-        """
+        """*Implementation* of :py:func:`mydojo.base.BaseView.get_view_icon`."""
         return 'login'
 
     @property
     def dbmodel(self):
-        """
-        *Interface implementation* of :py:func:`mydojo.base.SQLAlchemyMixin.dbmodel`.
-        """
+        """*Implementation* of :py:func:`mydojo.base.SQLAlchemyMixin.dbmodel`."""
         return UserModel
 
     def dispatch_request(self):
@@ -141,7 +135,11 @@ class LoginView(HTMLMixin, SQLAlchemyMixin, SimpleView):
                 )
 
                 # Redirect user back to original page.
-                return self.redirect(default_url = flask.url_for('index'))
+                return self.redirect(
+                    default_url = flask.url_for(
+                        flask.current_app.config['MYDOJO_LOGIN_REDIRECT']
+                    )
+                )
 
             except sqlalchemy.orm.exc.MultipleResultsFound:
                 self.logger.error(

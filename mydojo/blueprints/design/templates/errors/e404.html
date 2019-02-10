@@ -12,7 +12,7 @@
             </p>
             <hr>
             <p class="text-center">
-                {{ _('What you were looking for is just not there, perhaps <a href="%(link)s">go somewhere nice</a> instead.', link = url_for('index')) | safe }}
+                {{ _('What you were looking for is just not there, perhaps <a href="%(link)s">go somewhere nice</a> instead.', link = url_for(config['MYDOJO_ENDPOINT_HOME'])) | safe }}
             </p>
         </div>
     </div>

@@ -58,7 +58,7 @@ def get_redirect_target(target_url = None, default_url = None, exclude_url = Non
         flask.request.args.get('next'),
         flask.request.referrer,
         default_url,
-        flask.url_for('index')
+        flask.url_for('home.index')
     )
     for target in options:
         if not target:

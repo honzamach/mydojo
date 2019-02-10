@@ -83,7 +83,7 @@
         <!-- Main page navigation - BEGIN ------------------------------------->
         <nav class="navbar navbar-expand-md navbar-dark bg-dark">
             <div class="container container-navbar">
-                <a class="navbar-brand" href="{{ url_for('index') }}">
+                <a class="navbar-brand" href="{{ url_for(config['MYDOJO_ENDPOINT_HOME']) }}">
                     <img src="{{ url_for('static', filename='mydojo-icon-32x32.png') }}" alt="{{ mydojo_appname }} logo" width="32" height="32" style="display: inline-block" data-toggle="tooltip" title="{{ mydojo_appname }} - {{ mydojo_appslogan }}">
                     <!-- {{ mydojo_appname }} -->
                 </a>
@@ -94,7 +94,7 @@
                 <div class="collapse navbar-collapse" id="navbar-main">
                     <ul class="navbar-nav mr-auto">
                         <li class="nav-item active">
-                            <a class="nav-link" href="{{ url_for('index') }}">
+                            <a class="nav-link" href="{{ url_for(config['MYDOJO_ENDPOINT_HOME']) }}">
                                 {{ get_icon('section-home') }}
                                 <span class="d-none d-lg-inline"> {{ _('Home') }}</span>
                                 <span class="sr-only">({{ _('current') }})</span>

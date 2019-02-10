@@ -64,30 +64,22 @@ class LoginView(HTMLMixin, SQLAlchemyMixin, SimpleView):
 
     @classmethod
     def get_view_name(cls):
-        """
-        *Interface implementation* of :py:func:`mydojo.base.BaseView.get_view_name`.
-        """
+        """*Implementation* of :py:func:`mydojo.base.BaseView.get_view_name`."""
         return 'login'
 
     @classmethod
     def get_view_icon(cls):
-        """
-        *Interface implementation* of :py:func:`mydojo.base.BaseView.get_view_icon`.
-        """
+        """*Implementation* of :py:func:`mydojo.base.BaseView.get_view_icon`."""
         return 'login'
 
     @property
     def dbmodel(self):
-        """
-        *Interface implementation* of :py:func:`mydojo.base.SQLAlchemyMixin.dbmodel`.
-        """
+        """*Implementation* of :py:func:`mydojo.base.SQLAlchemyMixin.dbmodel`."""
         return UserModel
 
     @property
     def search_by(self):
-        """
-        *Interface implementation* of :py:func:`mydojo.base.SQLAlchemyMixin.search_by`.
-        """
+        """*Implementation* of :py:func:`mydojo.base.SQLAlchemyMixin.search_by`."""
         return self.dbmodel.login
 
     def dispatch_request(self):

@@ -282,13 +282,6 @@ def _setup_app_core(app):
 
     app.json_encoder = MyDojoJSONEncoder
 
-    @app.route('/')
-    def index():  # pylint: disable=locally-disabled,unused-variable
-        """
-        Default route for index page.
-        """
-        return flask.render_template('index.html')
-
     @app.route('/mydojo-main.js')
     def mainjs():  # pylint: disable=locally-disabled,unused-variable
         """
@@ -544,7 +537,9 @@ def _setup_app_babel(app):
         # Redirect user back to original page.
         return flask.redirect(
             mydojo.forms.get_redirect_target(
-                default_url = flask.url_for('index')
+                default_url = flask.url_for(
+                    flask.current_app.config['MYDOJO_ENDPOINT_HOME']
+                )
             )
         )
 

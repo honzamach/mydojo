@@ -12,7 +12,7 @@
             </p>
             <hr>
             <p class="text-center">
-                {{ _('We are sorry, but something went terribly wrong. Please try again later.') }}
+                {{ _('We are sorry, but something went terribly wrong. Please try again later, or perhaps <a href="%(link)s">go somewhere nice</a> instead.', link = url_for(config['MYDOJO_ENDPOINT_HOME'])) | safe }}
             </p>
         </div>
     </div>

@@ -107,10 +107,13 @@ class Config:  # pylint: disable=locally-disabled,too-few-public-methods
     MYDOJO_LOGIN_MSGCAT = 'info'
     """Default login message category."""
 
-    MYDOJO_LOGIN_REDIRECT = 'index'
+    MYDOJO_ENDPOINT_HOME = 'home.index'
+    """Homepage endpoint."""
+
+    MYDOJO_LOGIN_REDIRECT = 'home.index'
     """Default redirection endpoint after login."""
 
-    MYDOJO_LOGOUT_REDIRECT = 'index'
+    MYDOJO_LOGOUT_REDIRECT = 'home.index'
     """Default redirection endpoint after logout."""
 
     MYDOJO_LOCALES = collections.OrderedDict([
@@ -121,7 +124,8 @@ class Config:  # pylint: disable=locally-disabled,too-few-public-methods
 
     MYDOJO_MODULES = [
         'mydojo.blueprints.auth_pwd',
-        'mydojo.blueprints.design'
+        'mydojo.blueprints.design',
+        'mydojo.blueprints.home'
     ]
     """List of requested application blueprints to be loaded during setup."""
 
@@ -160,7 +164,8 @@ class DevelopmentConfig(Config):  # pylint: disable=locally-disabled,too-few-pub
     MYDOJO_MODULES = [
         'mydojo.blueprints.auth_dev',
         'mydojo.blueprints.auth_pwd',
-        'mydojo.blueprints.design'
+        'mydojo.blueprints.design',
+        'mydojo.blueprints.home'
     ]
     """Overwritten default value from :py:const:`mydojo.config.Config.MYDOJO_MODULES`"""
 
