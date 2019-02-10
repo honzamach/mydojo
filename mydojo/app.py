@@ -117,13 +117,15 @@ def _setup_app_core(app):
         Inject additional variables into Jinja2 global template namespace.
         """
         return dict(
-            mydojo_appname     = 'MyDojo',
-            mydojo_appslogan   = flask_babel.lazy_gettext('My personal internet dojo'),
-            mydojo_version     = mydojo.__version__,
-            mydojo_current_app = flask.current_app,
-            mydojo_logger      = flask.current_app.logger,
-            mydojo_cdt_utc     = datetime.datetime.utcnow(),
-            mydojo_cdt_local   = datetime.datetime.now(),
+            mydojo_appname      = 'MyDojo',
+            mydojo_appslogan    = flask_babel.lazy_gettext('My personal internet dojo'),
+            mydojo_version      = mydojo.__version__,
+            mydojo_current_app  = app,
+            mydojo_current_view = app.get_endpoint_class(flask.request.endpoint, True),
+            mydojo_navbar_main  = app.navbar_main,
+            mydojo_logger       = app.logger,
+            mydojo_cdt_utc      = datetime.datetime.utcnow(),
+            mydojo_cdt_local    = datetime.datetime.now(),
         )
 
     @app.context_processor

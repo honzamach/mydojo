@@ -4,6 +4,40 @@
 
 ############################################################################ -#}
 
+{%- macro render_navbar_main() -%}
+                    <!-- Main menu widget - BEGIN ----------------------------->
+                    <ul class="navbar-nav mr-auto">
+    {%- for menu_item in mydojo_navbar_main.get_entries() %}
+        {%- set menu_item_is_active = menu_item.is_active(request) %}
+                        <li class="nav-item{% if menu_item.type == 'submenu' %} dropdown{% elif menu_item.is_active(request) %} active{% endif %}">
+        {%- if menu_item.type == 'submenu' %}
+                            <a class="nav-link dropdown-toggle" href="#" id="navbar-dropdown-{{ menu_item.ident}}" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        {%- else %}
+                            <a class="nav-link" href="{% if menu_item_is_active %}#{% else %}{{ menu_item.get_url() }}{% endif %}"{% if menu_item.get_legend() %} data-toggle="tooltip" title="{{ menu_item.get_legend() }}"{% endif %}>
+        {%- endif %}
+                                {% if menu_item.get_icon() %}{{ get_icon(menu_item.get_icon()) }}{% endif %}
+                                {% if menu_item.get_title() %}{% if menu_item.resptitle %}<span class="d-none d-lg-inline">{%- endif%} {{ menu_item.get_title() }}{% if menu_item.resptitle %}</span>{% endif %}{% endif %}
+                                {% if menu_item_is_active %}<span class="sr-only">({{ _('current') }})</span>{%- endif %}
+                            </a>
+        {%- set menu_item_submenu = menu_item.get_entries() %}
+        {%- if menu_item.type == 'submenu' and menu_item_submenu %}
+                            <div class="dropdown-menu" aria-labelledby="navbar-dropdown-{{ menu_item.ident}}">
+            {%- for submenu_subitem in menu_item_submenu %}
+                {%- set submenu_subitem_is_active = submenu_subitem.is_active(request) %}
+                                <a class="dropdown-item{% if submenu_subitem_is_active %} active{% endif %}" href="{% if submenu_subitem_is_active %}#{% else %}{{ submenu_subitem.get_url() }}{% endif %}">
+                                    {% if menu_item.get_icon() %}{{ get_icon(menu_item.get_icon()) }}{% endif %}
+                                    {% if menu_item.get_title() %}{% if menu_item.resptitle %}<span class="d-none d-lg-inline">{%- endif%} {{ menu_item.get_title() }}{% if menu_item.resptitle %}</span>{% endif %}{% endif %}
+                                    {% if menu_item_is_active %}<span class="sr-only">({{ _('current') }})</span>{%- endif %}
+                                </a>
+            {%- endfor %}
+                            </div>
+        {%- endif %}
+                        </li>
+    {%- endfor %}
+                    </ul>
+                    <!-- Main menu widget - END ------------------------------->
+{%- endmacro %}
+
 {%- macro render_submenu_auth() -%}
                         <!-- Authenticated menu widget - BEGIN ---------------->
                         <li class="nav-item dropdown">

@@ -37,6 +37,8 @@ __author__ = "Honza Mach <honza.mach.ml@gmail.com>"
 import socket
 import collections
 
+from flask_babel import lazy_gettext
+
 #
 # Custom modules.
 #
@@ -125,12 +127,53 @@ class Config:  # pylint: disable=locally-disabled,too-few-public-methods
     MYDOJO_MODULES = [
         'mydojo.blueprints.auth_pwd',
         'mydojo.blueprints.design',
-        'mydojo.blueprints.home'
+        'mydojo.blueprints.home',
+        'mydojo.blueprints.lab'
     ]
     """List of requested application blueprints to be loaded during setup."""
 
     MYDOJO_LOG_FILE = '/var/log/mydojo.log'
     """Log file settings for logging framework."""
+
+    MYDOJO_NAVBAR_MAIN = [
+        {
+            'entry_type': 'submenu',
+            'ident': 'dashboards',
+            'position': 100,
+            'title': lazy_gettext('Dashboards'),
+            'resptitle': True,
+            'icon': 'section-dashboards'
+        },
+        {
+            'entry_type': 'submenu',
+            'ident': 'more',
+            'position': 200,
+            'title': lazy_gettext('More'),
+            'resptitle': True,
+            'icon': 'section-more',
+        },
+        {
+            'entry_type': 'submenu',
+            'ident': 'admin',
+            'position': 300,
+            'authentication': True,
+            'authorization': ['power'],
+            'title': lazy_gettext('Administration'),
+            'resptitle': True,
+            'icon': 'section-administration'
+        },
+        {
+            'entry_type': 'submenu',
+            'ident': 'developer',
+            'position': 400,
+            'authentication': True,
+            'authorization': ['developer'],
+            'title': lazy_gettext('Development'),
+            'resptitle': True,
+            'icon': 'section-development'
+        }
+    ]
+    """Configuration of main application navbar skeleton."""
 
 
 class ProductionConfig(Config):  # pylint: disable=locally-disabled,too-few-public-methods
@@ -165,7 +208,8 @@ class DevelopmentConfig(Config):  # pylint: disable=locally-disabled,too-few-pub
         'mydojo.blueprints.auth_dev',
         'mydojo.blueprints.auth_pwd',
         'mydojo.blueprints.design',
-        'mydojo.blueprints.home'
+        'mydojo.blueprints.home',
+        'mydojo.blueprints.lab'
     ]
     """Overwritten default value from :py:const:`mydojo.config.Config.MYDOJO_MODULES`"""
 

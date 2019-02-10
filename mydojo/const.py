@@ -84,6 +84,8 @@ RESOURCE_LOGIN_MANAGER = 'login_manager'
 RESOURCE_PRINCIPAL = 'principal'
 """Name for the ``flask_principal.Principal`` object within the application resources."""
 
+ICON_NAME_MISSING_ICON = 'missing-icon'
+"""Name of the icon to display instead of missing icons."""
 
 FA_ICONS = {
 
@@ -106,12 +108,17 @@ FA_ICONS = {
     #
     # Main site section icons.
     #
-    'section-home': '<i class="fas fa-fw fa-home"></i>',
+    'section-dashboards':     '<i class="fas fa-fw fa-tachometer-alt"></i>',
+    'section-more':           '<i class="fas fa-fw fa-puzzle-piece"></i>',
+    'section-administration': '<i class="fas fa-fw fa-cogs"></i>',
+    'section-development':    '<i class="fas fa-fw fa-bug"></i>',
 
     #
     # Built-in module icons.
     #
+    'module-home':   '<i class="fas fa-fw fa-home"></i>',
     'module-design': '<i class="fas fa-fw fa-palette"></i>',
+    'module-lab':    '<i class="fas fa-fw fa-flask"></i>',
 
 
     #

@@ -56,6 +56,7 @@ import flask_login
 #
 import mydojo.const
 import mydojo.db
+import mydojo.menu
 from mydojo.forms import get_redirect_target
 
 
@@ -83,6 +84,8 @@ class MyDojoApp(flask.Flask):
         super().__init__(import_name, **kwargs)
 
         self.csrf = None
+
+        self.navbar_main = mydojo.menu.Menu()
 
         self.view_classes = {}
         self.resources    = {}
@@ -564,6 +567,20 @@ class BaseView(flask.views.View):
         return '{}.{}'.format(cls.module_name, cls.get_view_name())
 
     @classmethod
+    def get_view_url(cls, **kwargs):
+        """
+        Return view URL.
+
+        :param dict kwargs: Optional parameters.
+        :return: URL for the view.
+        :rtype: str
+        """
+        return flask.url_for(
+            cls.get_view_endpoint(),
+            **kwargs
+        )
+
+    @classmethod
     def get_view_icon(cls):
         """
         Return menu entry icon name for the view. Given name will be used as index
@@ -572,10 +589,54 @@ class BaseView(flask.views.View):
         Default implementation generates the icon name by concatenating the prefix
         ``module-`` with module name.
 
-        :return: Menu entry icon for the view.
+        :return: View icon.
         :rtype: str
         """
         return 'module-{}'.format(cls.module_name)
+
+    @classmethod
+    def get_view_title(cls, **kwargs):
+        """
+        Return title for the view, that will be displayed in the ``title`` tag of
+        HTML ``head`` element and also as the content of page header in ``h2`` tag.
+
+        Default implementation returns the return value of :py:func:`hawat.base.HawatBaseView.get_menu_title`
+        method by default.
+
+        :param dict kwargs: Optional parameters.
+        :return: Title for the view.
+        :rtype: str
+        """
+        raise NotImplementedError()
+
+    @classmethod
+    def get_menu_title(cls, **kwargs):
+        """
+        Return menu entry title for the view.
+
+        Default implementation returns the return value of :py:func:`hawat.base.HawatBaseView.get_view_title`
+        method by default.
+
+        :param dict kwargs: Optional parameters.
+        :return: Menu entry title for the view.
+        :rtype: str
+        """
+        return cls.get_view_title(**kwargs)
+
+    @classmethod
+    def get_menu_legend(cls, **kwargs):
+        """
+        Return menu entry legend for the view (menu entry hover tooltip).
+
+        Default implementation returns the return value of :py:func:`hawat.base.HawatBaseView.get_menu_title`
+        method by default.
+
+        :param dict kwargs: Optional parameters.
+        :return: Menu entry legend for the view.
+        :rtype: str
+        """
+        return cls.get_menu_title(**kwargs)
+
 
     #---------------------------------------------------------------------------
 
@@ -756,7 +817,10 @@ class RenderableView(BaseView):  # pylint: disable=locally-disabled,abstract-met
         :rtype: str
         """
         if cls.module_name:
-            return '{}/{}.html'.format(cls.module_name, cls.get_view_name())
+            return '{}/{}.html'.format(
+                cls.module_name,
+                cls.get_view_name()
+            )
         raise RuntimeError("Unable to guess default view template, because module name was not yet set.")
 
     def do_before_response(self, **kwargs):  # pylint: disable=locally-disabled,no-self-use,unused-argument

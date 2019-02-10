@@ -12,14 +12,14 @@
 Description
 -----------
 
-This pluggable module provides default home page.
+This pluggable module provides access tpo my personal laboratory.
 
 
 Provided endpoints
 ------------------
 
-``/``
-    Page providing home page.
+``/lab/index``
+    Page providing laboratory index.
 
     * *Authentication:* no authentication
     * *Methods:* ``GET``
@@ -40,7 +40,7 @@ from flask_babel import lazy_gettext
 from mydojo.base import HTMLMixin, SimpleView, MyDojoBlueprint
 
 
-BLUEPRINT_NAME = 'home'
+BLUEPRINT_NAME = 'lab'
 """Name of the blueprint as module global constant."""
 
 
@@ -58,25 +58,25 @@ class IndexView(HTMLMixin, SimpleView):
     @classmethod
     def get_view_icon(cls):
         """*Implementation* of :py:func:`mydojo.base.BaseView.get_view_icon`."""
-        return 'module-home'
+        return 'module-lab'
 
     @classmethod
     def get_view_title(cls, **kwargs):
         """*Implementation* of :py:func:`mydojo.base.BaseView.get_view_title`."""
-        return lazy_gettext('Welcome to my internet dojo')
+        return lazy_gettext('Welcome to my laboratory')
 
     @classmethod
     def get_menu_title(cls, **kwargs):
         """*Implementation* of :py:func:`mydojo.base.BaseView.get_menu_title`."""
-        return lazy_gettext('Home')
+        return lazy_gettext('Lab')
 
 
 #-------------------------------------------------------------------------------
 
 
-class HomeBlueprint(MyDojoBlueprint):
+class LabBlueprint(MyDojoBlueprint):
     """
-    Pluggable module - home page (*home*).
+    Pluggable module - personal laboratory (*lab*).
     """
 
     def register_app(self, app):
@@ -91,7 +91,7 @@ class HomeBlueprint(MyDojoBlueprint):
         """
         app.navbar_main.add_entry(
             'view',
-            'home',
+            'lab',
             position = 1,
             view = IndexView,
             hidelegend = True,
@@ -108,10 +108,11 @@ def get_blueprint():
     instance of :py:class:`mydojo.base.MyDojoBlueprint` or :py:class:`flask.Blueprint`.
     """
 
-    hbp = HomeBlueprint(
+    hbp = LabBlueprint(
         BLUEPRINT_NAME,
         __name__,
-        template_folder = 'templates'
+        template_folder = 'templates',
+        url_prefix = '/{}'.format(BLUEPRINT_NAME)
     )
 
     hbp.register_view_class(IndexView, '/')
