@@ -433,7 +433,7 @@ class ViewEntry(MenuEntry):
         )
 
     def is_active(self, request, **kwargs):
-        print("Checking if view menu entry '{}' is active.".format(self.ident))
+        #print("Checking if view menu entry '{}' is active.".format(self.ident))
         params = self._pick_params(kwargs)
         return _is_active(
             self.get_url(**params),
