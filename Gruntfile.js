@@ -45,17 +45,9 @@ module.exports = function(grunt) {
         // ---------------------------------------------------------------------
         // Running shell commands.
         shell: {
-            // Install Yarn managed packages.
+            // Make sure all third party libraries are installed.
             yarn_install: {
                 command: 'yarn install'
-            },
-            // Upgrade Yarn managed packages.
-            yarn_upgrade: {
-                command: 'yarn upgrade'
-            },
-            // Clean precompiled Python modules.
-            pyclean: {
-                command: 'find lib/ -name *.pyc -delete'
             },
             // Compile language dictionaries.
             pybabel: {
@@ -139,16 +131,15 @@ module.exports = function(grunt) {
     // Setup custom tasks.
     // ---------------------------------------------------------------------
 
-    grunt.registerTask('update',
-                       '(RUN) Update internal NPM packages for build suite.',
-                       ['shell:yarn_install', 'shell:yarn_upgrade']
-        );
-    grunt.registerTask('webui',
-                       '(RUN) Build and install web user interface dependencies.',
-                       ['shell:yarn_install', 'clean:vendor', 'copy:vendor']
-        );
-    grunt.registerTask('default',
-                       '(RUN) Alias for webui.',
-                       ['webui']
-        );
+    grunt.registerTask(
+        'webui',
+       '(RUN) Build and install web user interface dependencies.',
+       ['shell:yarn_install', 'shell:pybabel', 'clean:vendor', 'copy:vendor']
+    );
+    grunt.registerTask(
+        'default',
+       '(RUN) Alias for webui.',
+       ['webui']
+    );
+
 };

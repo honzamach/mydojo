@@ -1,0 +1,7 @@
+setuptools
+wheel
+nose
+pyflakes
+pylint
+sphinx
+sphinx-rtd-theme

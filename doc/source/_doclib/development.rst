@@ -28,52 +28,6 @@ General guidelines
 * Use *master* branch only for production level and stable code.
 
 
-Versioning
---------------------------------------------------------------------------------
-
-This project uses the `semantic versioning <https://semver.org/>`__. Version number
-must be changed in following files:
-
-* ``mydojo/__init__.py``
-
-
-Tagging
---------------------------------------------------------------------------------
-
-Each major and minor version release must be tagged within the repository. Please
-use only annotated or signed tags and provide short comment for the release. Before
-tagging please view existing tags so that you can attempt to maintain the style of
-the tag messages.
-
-.. code-block:: shell
-
-	# List all existing tags
-	git tag -l -n999
-
-	# Create new annotated tag and provide message
-	git tag -a v1.0.0
-
-	# Push tags to remote server
-	git push origin v1.0.0
-
-	# Number of commits between last two versions:
-	git rev-list --count v1.0.0..v0.0.1
-
-	# Total changes between last two versions:
-	git log --numstat --pretty="%H" v1.0.0..v0.0.1 | awk 'NF==3 {plus+=$1; minus+=$2} END {printf("+%d, -%d\n", plus, minus)}'
-
-
-Preparing environment
---------------------------------------------------------------------------------
-
-Please execute the following command to install project locally in editable mode
-including all development dependencies:
-
-.. code-block:: shell
-
-	make install-dev
-
-
 Development essentials
 --------------------------------------------------------------------------------
 
@@ -82,29 +36,47 @@ can perform various usefull or essential development tasks. You can get the full
 list of all available make commands/targets by executing one of the following
 commands::
 
-	make
-	make help
+	$ make
+	$ make help
 
 
-Producing database migrations
+Preparing development environment
 ````````````````````````````````````````````````````````````````````````````````
 
-To create new database migration update database model in :py:mod:`mydojo.db` as
-necessary and then execute following commands::
+There are several development prerequisites, that already have to be present on
+your development machine. These prerequisites are not installed automatically
+for you, because the installation is too complex. There prerequisites are:
 
-	# Produce new migration version:
-	mydojo-cli db migrate -m "Change description: some additional description"
+* `Python 3 <https://www.python.org/>`__: Please use version similar to current stable Python3 release on current stable Debian release.
+* `Pip <https://pip.pypa.io/en/stable/>`__: Python package manager, we recommend installation with `get-pip.py <https://pip.pypa.io/en/stable/installing/#installing-with-get-pip-py>`__.
+* `Yarn <https://yarnpkg.com/en/>`__: NPM package manager for web interface libraries.
+* `Grunt <https://gruntjs.com/>`__: JavaScript task runner for web interface development.
+* `PostgreSQL 11 <https://www.postgresql.org/>`__: Relational database, please use version 11 wherever possible.
 
-	# Review and possibly update the newly generated migration in directory
-	# ``mydojo/migrations/versions/[something].py
+You can check for presence of all of these dependencies with this handy make target:
 
-	# Apply the migration locally:
-	mydojo-cli db upgrade
+.. code-block:: shell
 
-	# Optionally verify the current state of database schema:
-	mydojo-cli db history
-	mydojo-cli db current
-	mydojo-cli db show
+	# Check for presence of all prerequisites:
+	$ make deps-prerequisites
+
+Now please execute the following command from the root directory of the repository to
+initialize correct Python virtual environment, install all requirements (including
+those only for development) and finally install the project locally in editable mode:
+
+.. code-block:: shell
+
+	# Perform all installations:
+	$ make develop
+
+	# Activate virtual environment before any development work:
+	$ . venv/bin/activate
+
+	# Now from within the virtual environment install all required dependencies:
+	(venv) $ make deps
+
+	# Deactivate virtual environment when not needed with:
+	$ deactivate
 
 
 Checking code with Pyflakes
@@ -115,21 +87,25 @@ tool by executing following command:
 
 .. code-block:: shell
 
-	make pyflakes
+	# Always make sure your virtual environment is activated:
+	$ . venv/bin/activate
+
+	# Run tests:
+	(venv) $ make pyflakes
 
 Or you may check just the single file by executing following command:
 
 .. code-block:: shell
 
-	cd lib
-	pyflakes path/to/module.py
+	# Always make sure your virtual environment is activated:
+	$ . venv/bin/activate
 
-Make sure, that the `pyflakes <https://pypi.org/project/pyflakes/>`__ library is
-already installed on your system. You may install it by executing following command:
+	# Run tests:
+	(venv) $ pyflakes path/to/module.py
 
-.. code-block:: shell
+Important resources:
 
-	pip3 install pyflakes
+* `pyflakes <https://github.com/PyCQA/pyflakes>`__
 
 
 Checking code with Pylint
@@ -140,21 +116,25 @@ tool by executing following command:
 
 .. code-block:: shell
 
-	make pylint
+	# Always make sure your virtual environment is activated:
+	$ . venv/bin/activate
+
+	# Run tests:
+	(venv) $ make pylint
 
 Or you may check just the single file by executing following command:
 
 .. code-block:: shell
 
-	cd lib
-	pylint --rcfile=../.pylintrc-lib path/to/module.py
+	# Always make sure your virtual environment is activated:
+	$ . venv/bin/activate
 
-Make sure, that the `pylint <https://pypi.org/project/pylint/>`__ library is already
-installed on your system. You may install it by executing following command:
+	# Run tests:
+	(venv) $ pylint --rcfile=../.pylintrc path/to/module.py
 
-.. code-block:: shell
+Important resources:
 
-	pip3 install pylint
+* `pylint <https://pylint.readthedocs.io/en/latest/>`__
 
 
 Running unit tests
@@ -165,14 +145,15 @@ command:
 
 .. code-block:: shell
 
-	make test
+	# Always make sure your virtual environment is activated:
+	$ . venv/bin/activate
 
-Make sure, that the `nose <https://pypi.org/project/nose/>`__ library is already
-installed on your system. You may install it by executing following command:
+	# Run tests:
+	(venv) $ make test
 
-.. code-block:: shell
+Important resources:
 
-	pip3 install nose
+* `nosetests <http://nose.readthedocs.io/en/latest/>`__
 
 
 Documentation
@@ -187,34 +168,27 @@ and the result should still be more or less readable. Please test it immediately
 
 .. code-block:: shell
 
-	pydoc3 ./path/to/module.py
+	# Always make sure your virtual environment is activated:
+	$ . venv/bin/activate
+
+	# Run tests:
+	(venv) $ pydoc3 ./path/to/module.py
 
 You may generate and review the documentation locally by executing the following
 command:
 
 .. code-block:: shell
 
-	make docs
+	# Always make sure your virtual environment is activated:
+	$ . venv/bin/activate
 
-Make sure, that the `Sphinx <https://pypi.org/project/sphinx/>`__ and
-`sphinx-rtd-theme <https://pypi.org/project/sphinx-rtd-theme/>`__ libraries are
-already installed on your system. You may install them by executing following
-commands:
-
-.. code-block:: shell
-
-	pip3 install sphinx
-	pip3 install sphinx_rtd_theme
+	# Run tests:
+	(venv) $ make docs
 
 Documentation will be generated into ``doc/build/html/manual.html``.
 
+Important resources:
 
-Important resources
-````````````````````````````````````````````````````````````````````````````````
-
-* `pyflakes <https://github.com/PyCQA/pyflakes>`__
-* `pylint <https://pylint.readthedocs.io/en/latest/>`__
-* `nosetests <http://nose.readthedocs.io/en/latest/>`__
 * `pydoc3 <https://docs.python.org/3/library/pydoc.html>`__
 * `Sphinx-doc <http://www.sphinx-doc.org/en/stable/contents.html>`__
 
@@ -222,3 +196,65 @@ Important resources
   * `Sphinx markup constructs <http://www.sphinx-doc.org/en/stable/markup/index.html>`__
   * `The Python domain <http://www.sphinx-doc.org/en/stable/domains.html#the-python-domain>`__
   * `Documenting functions and methods <http://www.sphinx-doc.org/en/stable/domains.html#info-field-lists>`__
+
+
+Producing database migrations
+````````````````````````````````````````````````````````````````````````````````
+
+To create new database migration update database model in :py:mod:`mydojo.db` as
+necessary and then execute following commands::
+
+	# Produce new migration version:
+	(venv) $ mydojo-cli db migrate -m "Change description: some additional description"
+
+	# Review and possibly update the newly generated migration in directory
+	# ``mydojo/migrations/versions/[something].py
+
+	# Apply the migration locally:
+	(venv) $ mydojo-cli db upgrade
+
+	# Optionally verify the current state of database schema:
+	(venv) $ mydojo-cli db history
+	(venv) $ mydojo-cli db current
+	(venv) $ mydojo-cli db show
+
+Important resources:
+
+* `Alembic <https://alembic.sqlalchemy.org/en/latest/index.html>`__
+* `Flask-Migrate <https://flask-migrate.readthedocs.io/en/latest/>`__
+
+
+Versioning
+--------------------------------------------------------------------------------
+
+This project uses the `semantic versioning <https://semver.org/>`__. Version number
+must be changed in following files:
+
+* ``mydojo/__init__.py``
+* ``setup.py``
+
+
+Tagging
+--------------------------------------------------------------------------------
+
+Each major and minor version release must be tagged within the repository. Please
+use only annotated or signed tags and provide short comment for the release. Before
+tagging please view existing tags so that you can attempt to maintain the style of
+the tag messages.
+
+.. code-block:: shell
+
+	# List all existing tags
+	$ git tag -l -n999
+
+	# Create new annotated tag and provide message
+	$ git tag -a v1.0.0
+
+	# Push tags to remote server
+	$ git push origin v1.0.0
+
+	# Number of commits between last two versions:
+	$ git rev-list --count v1.0.0..v0.0.1
+
+	# Total changes between last two versions:
+	$ git log --numstat --pretty="%H" v1.0.0..v0.0.1 | awk 'NF==3 {plus+=$1; minus+=$2} END {printf("+%d, -%d\n", plus, minus)}'
