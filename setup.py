@@ -4,6 +4,7 @@
 # This file is part of MyDojo package (https://github.com/honzamach/mydojo).
 #
 # Copyright (C) since 2018 Honza Mach <honza.mach.ml@gmail.com>
+# Author: Honza Mach <honza.mach.ml@gmail.com>
 # Use of this source is governed by the MIT license, see LICENSE file.
 #-------------------------------------------------------------------------------
 
@@ -24,7 +25,7 @@ Resources:
 
 """
 
-import sys
+#import sys
 import os
 
 # To use a consistent encoding
@@ -32,14 +33,31 @@ from codecs import open
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
 
-#
-# Import local version of MyDojo library, so that we can insert correct version
-# number into package.
-#
-sys.path.insert(0, os.path.abspath('.'))
-import mydojo
-
 here = os.path.abspath(os.path.dirname(__file__))
+
+# TODO: This solution has some issues when installing the project in editable mode
+# for the first time.
+#sys.path.insert(0, os.path.abspath('lib'))
+#import mydojo
+
+#-------------------------------------------------------------------------------
+
+def read_file(file_name):
+    """Read file and return its contents."""
+    with open(file_name, 'r') as fhd:
+        return fhd.read()
+
+def read_requirements(file_name):
+    """Read requirements file as a list."""
+    reqs = read_file(file_name).splitlines()
+    if not reqs:
+        raise RuntimeError(
+            "Unable to read requirements from the {} file.".format(
+                file_name
+            )
+        )
+    reqs = [req.split(' ')[0] for req in reqs]
+    return reqs
 
 #-------------------------------------------------------------------------------
 
@@ -49,7 +67,10 @@ with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name = 'mydojo',
-    version = mydojo.__version__,
+    # TODO: This solution has some issues when installing the project in editable mode
+    # for the first time.
+    #version = mydojo.__version__,
+    version = '0.1.0',
     description = 'My personal internet Dojo',
     long_description = long_description,
     classifiers = [
@@ -67,23 +88,7 @@ setup(
     tests_require = [
         'nose'
     ],
-    install_requires=[
-        'alembic==1.0.7',
-        'babel==2.6.0',
-        'blinker==1.4',
-        'flask==1.0.2',
-        'flask-babel==0.11.2',
-        'flask-debugtoolbar==0.10.1',
-        'flask-jsglue==0.3.1',
-        'flask-login==0.4.1',
-        'flask-migrate==2.2.1',
-        'flask-principal==0.4.0',
-        'flask-sqlalchemy==2.3.2',
-        'flask-wtf==0.14.2'
-        'jinja2==2.10',
-        'pytz==2018.5',
-        'wtforms==2.2.1'
-    ],
+    install_requires = read_requirements('etc/requirements.pip'),
     # Add development requirements as extras. This way it is possible to install
     # the package for development locally with following command:
     #
@@ -93,12 +98,7 @@ setup(
     #   https://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies
     #   https://stackoverflow.com/a/28842733
     extras_require = {
-        'dev': [
-            'pyflakes',
-            'pylint',
-            'sphinx',
-            'sphinx-rtd-theme'
-        ]
+        'dev': read_requirements('etc/requirements-dev.pip'),
     },
     scripts = [
         'bin/mydojo-init.sh',
