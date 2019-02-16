@@ -132,8 +132,14 @@ class Config:  # pylint: disable=locally-disabled,too-few-public-methods
     ]
     """List of requested application blueprints to be loaded during setup."""
 
+    MYDOJO_LOG_DEFAULT_LEVEL = 'info'
+    """Default logging level, case insensitive. One of the values ``DEBUG``, ``INFO``, ``WARNING``, ``ERROR``, ``CRITICAL``."""
+
     MYDOJO_LOG_FILE = '/var/log/mydojo.log'
     """Log file settings for logging framework."""
+
+    MYDOJO_LOG_FILE_LEVEL = 'info'
+    """File logging level, case insensitive. One of the values ``DEBUG``, ``INFO``, ``WARNING``, ``ERROR``, ``CRITICAL``."""
 
     MYDOJO_NAVBAR_MAIN = [
         {
@@ -213,8 +219,14 @@ class DevelopmentConfig(Config):  # pylint: disable=locally-disabled,too-few-pub
     ]
     """Overwritten default value from :py:const:`mydojo.config.Config.MYDOJO_MODULES`"""
 
+    MYDOJO_LOG_DEFAULT_LEVEL = 'debug'
+    """Overwritten default value from :py:const:`mydojo.config.Config.MYDOJO_LOG_DEFAULT_LEVEL`"""
+
     MYDOJO_LOG_FILE = '/var/tmp/mydojo-dev.py.log'
     """Overwritten default value from :py:const:`mydojo.config.Config.MYDOJO_LOG_FILE`"""
+
+    MYDOJO_LOG_FILE_LEVEL = 'debug'
+    """Overwritten default value from :py:const:`mydojo.config.Config.MYDOJO_LOG_FILE_LEVEL`"""
 
 
 class TestingConfig(Config):  # pylint: disable=locally-disabled,too-few-public-methods

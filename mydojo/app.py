@@ -127,6 +127,7 @@ def _setup_app_logging(app):
     :return: Modified MyDojo application
     :rtype: mydojo.base.MyDojoApp
     """
+    mydojo.log.setup_logging_default(app)
     mydojo.log.setup_logging_file(app)
 
     return app
