@@ -8,12 +8,25 @@
 # Use of this source is governed by the MIT license, see LICENSE file.
 #-------------------------------------------------------------------------------
 
-DIR_LIB = mydojo
+
+#
+# Default make target, alias for 'help', you must explicitly choose the target.
+#
+default: help
+
+
+#===============================================================================
+
+
+PROJECT_ID   = mydojo
+PROJECT_NAME = MyDojo
+
+DIR_LIB = $(PROJECT_ID)
 
 SPHINXOPTS      =
 SPHINXBUILD     = sphinx-build
 SPHINXAPIDOC    = sphinx-apidoc
-SPHINXPROJ      = MyDojo
+SPHINXPROJ      = $(PROJECT_NAME)
 SPHINXSOURCEDIR = doc/source
 SPHINXBUILDDIR  = doc/build
 
@@ -27,62 +40,47 @@ PYBABEL     = pybabel
 CURRENT_DIR = $(shell pwd)
 
 #
+# Include common makefile configurations.
+#
+include Makefile.inc
+
+#
 # Include local customized configurations.
 #
 include Makefile.cfg
-
-#
-# Color code definitions for colored terminal output.
-#
-# Resource:
-# 	https://stackoverflow.com/questions/5947742/how-to-change-the-output-color-of-echo-in-linux
-#
-RED    = \033[0;31m
-GREEN  = \033[0;32m
-ORANGE = \033[0;33m
-BLUE   = \033[0;34m
-PURPLE = \033[0;35m
-CYAN   = \033[0;36m
-NC     = \033[0m
-BOLD   = \033[1m
-FAINT  = \033[2m
 
 
 #===============================================================================
 
 
 #
-# Default make target, alias for 'help', you must explicitly choose the target.
-#
-default: help
-
-#
 # Display extensive help information page.
 #
 help:
 	@echo ""
-	@echo "                ███╗   ███╗██╗   ██╗██████╗  ██████╗      ██╗ ██████╗ "
-	@echo "                ████╗ ████║╚██╗ ██╔╝██╔══██╗██╔═══██╗     ██║██╔═══██╗"
-	@echo "                ██╔████╔██║ ╚████╔╝ ██║  ██║██║   ██║     ██║██║   ██║"
-	@echo "                ██║╚██╔╝██║  ╚██╔╝  ██║  ██║██║   ██║██   ██║██║   ██║"
-	@echo "                ██║ ╚═╝ ██║   ██║   ██████╔╝╚██████╔╝╚█████╔╝╚██████╔╝"
-	@echo "                ╚═╝     ╚═╝   ╚═╝   ╚═════╝  ╚═════╝  ╚════╝  ╚═════╝ "
-	@echo "            $(FAINT)Copyright (C) since 2018 Honza Mach <honza.mach.ml@gmail.com>$(NC)"
+	@echo "                 ███╗   ███╗██╗   ██╗██████╗  ██████╗      ██╗ ██████╗ "
+	@echo "                 ████╗ ████║╚██╗ ██╔╝██╔══██╗██╔═══██╗     ██║██╔═══██╗"
+	@echo "                 ██╔████╔██║ ╚████╔╝ ██║  ██║██║   ██║     ██║██║   ██║"
+	@echo "                 ██║╚██╔╝██║  ╚██╔╝  ██║  ██║██║   ██║██   ██║██║   ██║"
+	@echo "                 ██║ ╚═╝ ██║   ██║   ██████╔╝╚██████╔╝╚█████╔╝╚██████╔╝"
+	@echo "                 ╚═╝     ╚═╝   ╚═╝   ╚═════╝  ╚═════╝  ╚════╝  ╚═════╝ "
+	@echo "             $(FAINT)Copyright (C) since 2018 Honza Mach <honza.mach.ml@gmail.com>$(NC)"
 	@echo ""
-	@echo " $(GREEN)$(BOLD)╔══════════════════════════════════════════════════════════════════════════════════╗$(NC)"
-	@echo " $(GREEN)$(BOLD)║                          LIST OF AVAILABLE MAKE TARGETS                          ║$(NC)"
-	@echo " $(GREEN)$(BOLD)╚══════════════════════════════════════════════════════════════════════════════════╝$(NC)"
+	@echo " $(GREEN)$(BOLD)╔═════════════════════════════════════════════════════════════════════════════════════╗$(NC)"
+	@echo " $(GREEN)$(BOLD)║                           LIST OF AVAILABLE MAKE TARGETS                            ║$(NC)"
+	@echo " $(GREEN)$(BOLD)╚═════════════════════════════════════════════════════════════════════════════════════╝$(NC)"
 	@echo ""
 	@echo "  $(BLUE)$(BOLD)MAIN TARGETS$(NC)"
 	@echo "  $(BLUE)$(BOLD)────────────$(NC)"
 	@echo "  * $(GREEN)default$(NC): alias for help, you must pick a target"
 	@echo "  * $(GREEN)help$(NC): print this extensive help text and exit"
 	@echo "  * $(GREEN)show-version$(NC): show current project version"
+	@echo "  * $(GREEN)show-envstamp$(NC): show information about current development environment"
 	@echo "  * $(GREEN)develop$(NC): install and configure project locally for development"
 	@echo "  * $(GREEN)deps$(NC): install project dependencies"
 	@echo "  * $(GREEN)clean$(NC): cleanup development and build environment"
 	@echo "  * $(GREEN)docs$(NC): generate project documentation"
-	@echo "  * $(GREEN)check$(NC): perform extensive checks and tests"
+	@echo "  * $(GREEN)check$(NC): perform all checks and tests"
 	@echo "  * $(GREEN)build-whl$(NC): perform local build of Python distribution package"
 	@echo ""
 	@echo "  $(BLUE)$(BOLD)HELPER TARGETS$(NC)"
@@ -100,8 +98,11 @@ help:
 	@echo "  * $(GREEN)clean-build-docs$(NC): clean up documentation build directories"
 	@echo "  * $(GREEN)clean-build-python$(NC): clean up Python build directories"
 	@echo ""
+	@echo "  * $(GREEN)docs-html$(NC): generate project documentation in HTML"
+	@echo "  * $(GREEN)docs-view$(NC): view project documentation in HTML"
+	@echo ""
 	@echo "  * $(GREEN)pybabel-patch$(NC): patch babel library"
-	@echo "  * $(GREEN)pybabel-init INIT_LOCALE=lc$(NC): init translations for given locale lc"
+	@echo "  * $(GREEN)pybabel-init INIT_LOCALE=lc$(NC): init translations for given locale $(FAINT)lc$(NC)"
 	@echo "  * $(GREEN)pybabel-pull$(NC): extract and update translations"
 	@echo "      - $(ORANGE)pybabel-extract$(NC): extract translations"
 	@echo "      - $(ORANGE)pybabel-update$(NC): update translations"
@@ -116,19 +117,13 @@ help:
 	@echo ""
 	@echo "  * $(GREEN)deploy$(NC): deploy to remote server"
 	@echo ""
-	@echo " $(GREEN)════════════════════════════════════════════════════════════════════════════════════$(NC)"
+
+	@echo " $(GREEN)═══════════════════════════════════════════════════════════════════════════════════════$(NC)"
 	@echo ""
 
 
 #-------------------------------------------------------------------------------
 
-
-#
-# Show current project version. This can be used by various automated systems to
-# verify/mark the version that is actually being built.
-#
-show-version: FORCE
-	@PYTHONPATH=. $(PYTHON) -c "import mydojo; print(mydojo.__version__);"
 
 #
 # Install and configure project locally for development. This target will perform
@@ -179,7 +174,7 @@ develop: FORCE
 #
 # Install and configure project dependencies.
 #
-deps: deps-prerequisites deps-python deps-python-dev deps-webui deps-postgresql
+deps: deps-prerequisites deps-python deps-python-dev deps-webui deps-postgresql pybabel-compile
 
 #
 # Cleanup development and build environment.
@@ -205,11 +200,19 @@ build-whl: clean build-webui build-package-whl
 #===============================================================================
 
 
+#
+# Check for development prerequisites. The prerequisites are certain commands and
+# applications that have to be already installed on local system, otherwise the
+# installation can not proceed further. These prerequisites ussually require more
+# complex installation process, or their installation is not straightforward, or
+# there are multiple installation procedures and it is not possible to choose the
+# best option. In any case, it is best to leave the installation to the user.
+#
 deps-prerequisites: FORCE
 	@echo "\n$(GREEN)*** Checking for development prerequisites ***$(NC)\n"
 	@for prereq in $(PYTHON) $(PIP) yarn grunt psql ; do \
 		if command -v $$prereq >/dev/null 2>&1; then \
-			echo "Prerequisite: $$prereq"; \
+			echo "Prerequisite: $$prereq (`$$prereq --version | tr '\n' ',' | sed -e s/,$$//g;`)"; \
 		else \
 			echo "$(RED)PREREQUISITE: $$prereq (missing).$(NC)\n"; \
 			echo "You have to install this prerequisite manually.\n"; \
@@ -218,40 +221,73 @@ deps-prerequisites: FORCE
 	done
 	@echo ""
 
+#
+# Install project`s Python dependencies using pip requirements file. The dependencies
+# are already listed in setup.py file and pip can install them automatically. It
+# is however better to use requirements file directly, because its syntax enables
+# users to provide addditonal options to pip binary and thus enable for example
+# an installation of binary packages. It is much more powerfull than simple syntax
+# of 'install_requires' keyword of 'setup.py'.
+#
 deps-python: FORCE
 	@echo "\n$(GREEN)*** Installing Python dependencies ***$(NC)\n"
 	@$(PIP) --version
 	@$(PIP) install -r etc/requirements.pip --upgrade
 	@echo ""
 
+#
+# Install project`s Python development dependencies using pip requirements file.
+# These dependencies are essential for development, but not required for production
+# deployment. For more information on why to use pip requirements file explicitly
+# instead of letting it install the dependencies from the list in 'setup.py' file
+# please see the documentation of 'deps-python' target above.
+#
 deps-python-dev: FORCE
 	@echo "\n$(GREEN)*** Installing Python development dependencies ***$(NC)\n"
 	@$(PIP) --version
 	@$(PIP) install -r etc/requirements-dev.pip
 	@echo ""
 
+#
+# Upgrade project`s Python dependencies using pip requirements file to latest
+# versions.
+#
 deps-python-upgrade: FORCE
 	@echo "\n$(GREEN)*** Upgrading Python dependencies to latest versions ***$(NC)\n"
 	@$(PIP) --version
 	@$(PIP) install -r etc/requirements-latest.pip --upgrade
 	@echo ""
 
+#
+# Upgrade project`s Python development dependencies using pip requirements file
+# to latest versions. These dependencies are essential for development, but not
+# required for production deployment.
+#
 deps-python-upgrade-dev: FORCE
 	@echo "\n$(GREEN)*** Upgrading Python development dependencies to latest versions ***$(NC)\n"
 	@$(PIP) --version
 	@$(PIP) install -r etc/requirements-latest-dev.pip --upgrade
 	@echo ""
 
+#
+# Install project`s web interface dependencies using yarn.
+#
 deps-webui: FORCE
 	@echo "\n$(GREEN)*** Installing web interface dependencies ***$(NC)\n"
 	@yarn install
 	@echo ""
 
+#
+# Upgrade project`s web interface dependencies using yarn to latest versions.
+#
 deps-webui-upgrade: FORCE
 	@echo "\n$(GREEN)*** Upgrading web interface dependencies ***$(NC)\n"
 	@yarn upgrade
 	@echo ""
 
+#
+# Create and configure required PostgreSQL user accounts and databases.
+#
 deps-postgresql: FORCE
 	@echo "\n$(GREEN)*** Configuring required PostgreSQL user accounts and databases ***$(NC)\n"
 	@./bin/mydojo-init.sh
@@ -261,8 +297,18 @@ deps-postgresql: FORCE
 #-------------------------------------------------------------------------------
 
 
+run-webui-dev:
+	@echo "\n$(GREEN)*** Running development web server with development configuration ***$(NC)\n"
+	@FLASK_ENV=development FLASK_CONFIG=development FLASK_CONFIG_FILE=$(shell realpath ./$(PROJECT_ID).local.conf) $(PROJECT_ID)-cli run
+
+
+#-------------------------------------------------------------------------------
+
+#
+# Get rid of all precompiled Python files and '~' backup files.
+#
 clean-pycs: FORCE
-	@echo "\n$(GREEN)*** Cleaning up Python compiled files ***$(NC)\n"
+	@echo "\n$(GREEN)*** Cleaning up Python precompiled files ***$(NC)\n"
 	@find . -name '*.pyc' -delete
 	@find . -name '*.pyo' -delete
 	@find . -name '*~' -delete
@@ -290,10 +336,16 @@ docs-help: FORCE
 	@echo ""
 
 docs-html: FORCE
-	@echo "\n$(GREEN)*** Generating project documentation ***$(NC)\n"
-	@$(SPHINXAPIDOC) -a --force --separate --module-first -o "$(SPHINXSOURCEDIR)/_apidoc" mydojo
+	@echo "\n$(GREEN)*** Generating project API documentation ***$(NC)\n"
+	@$(SPHINXAPIDOC) --force --separate --module-first -o "$(SPHINXSOURCEDIR)/_apidoc" mydojo
+
+	@echo "\n$(GREEN)*** Generating project documentation - HTML ***$(NC)\n"
 	@$(SPHINXBUILD) -M html "$(SPHINXSOURCEDIR)" "$(SPHINXBUILDDIR)" $(SPHINXOPTS) $(O)
 	@echo ""
+
+docs-view: FORCE
+	@echo "\n$(GREEN)*** Displaying project documentation ***$(NC)\n"
+	@x-www-browser $(SPHINXBUILDDIR)/html/manual.html
 
 
 #-------------------------------------------------------------------------------
