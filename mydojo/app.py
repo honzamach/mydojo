@@ -129,6 +129,8 @@ def _setup_app_logging(app):
     """
     mydojo.log.setup_logging_default(app)
     mydojo.log.setup_logging_file(app)
+    if not app.debug:
+        mydojo.log.setup_logging_email(app)
 
     return app
 

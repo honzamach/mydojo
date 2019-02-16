@@ -80,7 +80,8 @@ class Config:  # pylint: disable=locally-disabled,too-few-public-methods
     MAIL_PORT           = 25
     MAIL_USERNAME       = None
     MAIL_PASSWORD       = None
-    MAIL_DEFAULT_SENDER = 'mydojo@{}'.format(socket.getfqdn())
+    MAIL_SENDER         = 'mydojo@{}'.format(socket.getfqdn())
+    MAIL_SUBJECT_PREFIX = '[MyDojo]'
 
     # Babel configurations for application localization.
     BABEL_DEFAULT_LOCALE   = mydojo.const.MYDOJO_DEFAULT_LOCALE
@@ -141,6 +142,9 @@ class Config:  # pylint: disable=locally-disabled,too-few-public-methods
     MYDOJO_LOG_FILE_LEVEL = 'info'
     """File logging level, case insensitive. One of the values ``DEBUG``, ``INFO``, ``WARNING``, ``ERROR``, ``CRITICAL``."""
 
+    MYDOJO_LOG_EMAIL_LEVEL = 'error'
+    """File logging level, case insensitive. One of the values ``DEBUG``, ``INFO``, ``WARNING``, ``ERROR``, ``CRITICAL``."""
+
     MYDOJO_NAVBAR_MAIN = [
         {
             'entry_type': 'submenu',
@@ -181,6 +185,8 @@ class Config:  # pylint: disable=locally-disabled,too-few-public-methods
     ]
     """Configuration of main application navbar skeleton."""
 
+    MYDOJO_ADMINS = ['root']
+    """List of system administrator emails."""
 
 class ProductionConfig(Config):  # pylint: disable=locally-disabled,too-few-public-methods
     """
