@@ -37,7 +37,7 @@ def validate_email(ctx, param, value):
         )
 
 
-user_cli = AppGroup('users')
+user_cli = AppGroup('users', help = "User account management module.")
 
 @user_cli.command('create')
 @click.argument('login', callback = validate_email)
@@ -46,9 +46,7 @@ user_cli = AppGroup('users')
 @click.password_option()
 @click.option('--enabled/--no-enabled', default=False)
 def users_create(login, fullname, email, password, enabled):
-    """
-    Create user account.
-    """
+    """Create new user account."""
     sqlobj = mydojo.db.UserModel()
 
     sqlobj.login    = login
@@ -74,7 +72,7 @@ def users_create(login, fullname, email, password, enabled):
 
     except sqlalchemy.exc.IntegrityError as exc:
         mydojo.db.SQLDB.session.rollback()
-        match = re.search('Key \((\w+)\)=\(([^)]+)\) already exists.', str(exc))
+        match = re.search(r'Key \((\w+)\)=\(([^)]+)\) already exists.', str(exc))
         if match:
             click.secho(
                 "[FAIL] User account with {} '{}' already exists.".format(
@@ -102,9 +100,7 @@ def users_create(login, fullname, email, password, enabled):
 @user_cli.command('delete')
 @click.argument('login', callback = validate_email)
 def users_delete(login):
-    """
-    Delete user account.
-    """
+    """Delete existing user account."""
     click.echo("Deleting user account '{}'".format(login))
     try:
         item = mydojo.db.SQLDB.session.query(
@@ -126,17 +122,9 @@ def users_delete(login):
             traceback.TracebackException(*sys.exc_info())
         )
 
-    except Exception:  # pylint: disable=locally-disabled,broad-except
-        mydojo.db.SQLDB.session.rollback()
-        click.echo(
-            traceback.TracebackException(*sys.exc_info())
-        )
-
 @user_cli.command('list')
 def users_list():
-    """
-    List all available user accounts.
-    """
+    """List all available user accounts."""
     try:
         items = mydojo.db.SQLDB.session.query(mydojo.db.UserModel).all()
         if items:
@@ -151,6 +139,10 @@ def users_list():
         click.echo(
             traceback.TracebackException(*sys.exc_info())
         )
+
+
+#-------------------------------------------------------------------------------
+
 
 def setup_cli(app):
     """

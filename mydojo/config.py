@@ -231,3 +231,11 @@ class TestingConfig(Config):  # pylint: disable=locally-disabled,too-few-public-
 
     TESTING = True
     """Overwritten default value from :py:const:`mydojo.config.Config.TESTING`"""
+
+
+CONFIG_MAP = {
+    'development': DevelopmentConfig,
+    'production':  ProductionConfig,
+    'testing':     TestingConfig,
+    'default':     ProductionConfig
+}

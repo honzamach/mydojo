@@ -40,11 +40,79 @@ import flask_principal
 #
 import mydojo.base
 import mydojo.const
+import mydojo.config
 import mydojo.log
 import mydojo.db
 import mydojo.auth
 import mydojo.forms
 import mydojo.command
+
+
+APP_NAME = 'mydojo'
+"""Name of the application as a constant for Flask."""
+
+
+#-------------------------------------------------------------------------------
+
+
+def create_app_full(
+        config_dict   = None,
+        config_object = 'mydojo.config.ProductionConfig',
+        config_file   = None,
+        config_env    = 'FLASK_CONFIG_FILE'):
+    """
+    Factory function for building MyDojo application. This function takes number of
+    optional arguments, that can be used to create a very customized instance of
+    MyDojo application. This can be very usefull when extending applications`
+    capabilities or for purposes of testing. Each of these arguments has default
+    value for the most common application setup, so for disabling it entirely it
+    is necessary to provide ``None`` as a value.
+
+    :param dict config_dict: Initial default configurations.
+    :param str config_object: Name of the class or module containing configurations.
+    :param str config_file: Name of the file containing additional configurations.
+    :param str config_env:  Name of the environment variable pointing to file containing additional configurations.
+    :return: MyDojo application
+    :rtype: mydojo.base.MyDojoApp
+    """
+
+    app = mydojo.base.MyDojoApp(APP_NAME)
+
+    if config_dict and isinstance(config_dict, dict):
+        app.config.update(config_dict)
+    if config_object:
+        app.config.from_object(config_object)
+    if config_file:
+        app.config.from_pyfile(config_file)
+    if config_env and os.getenv(config_env, None):
+        app.config.from_envvar(config_env)
+
+    _setup_app_logging(app)
+    _setup_app_core(app)
+    _setup_app_db(app)
+    _setup_app_auth(app)
+    _setup_app_babel(app)
+    _setup_app_blueprints(app)
+    _setup_app_cli(app)
+
+    return app
+
+def create_app():
+    """
+    Factory function for building MyDojo application. This function takes number of
+    optional arguments, that can be used to create a very customized instance of
+    MyDojo application. This can be very usefull when extending applications`
+    capabilities or for purposes of testing. Each of these arguments has default
+    value for the most common application setup, so for disabling it entirely it
+    is necessary to provide ``None`` as a value.
+
+    :return: MyDojo application
+    :rtype: mydojo.base.MyDojoApp
+    """
+    config_name = os.getenv('FLASK_CONFIG', 'default')
+    return create_app_full(
+        config_object = mydojo.config.CONFIG_MAP[config_name]
+    )
 
 
 #-------------------------------------------------------------------------------
@@ -671,51 +739,5 @@ def _setup_app_cli(app):
     :rtype: mydojo.base.MyDojoApp
     """
     mydojo.command.setup_cli(app)
-
-    return app
-
-
-#-------------------------------------------------------------------------------
-
-
-def create_app(
-        config_dict   = None,
-        config_object = 'mydojo.config.ProductionConfig',
-        config_file   = '/etc/mydojo/mydojo.conf',
-        config_env    = 'MYDOJO_CONFIG_FILE'):
-    """
-    Factory function for building MyDojo application. This function takes number of
-    optional arguments, that can be used to create a very customized instance of
-    MyDojo application. This can be very usefull when extending applications`
-    capabilities or for purposes of testing. Each of these arguments has default
-    value for the most common application setup, so for disabling it entirely it
-    is necessary to provide ``None`` as a value.
-
-    :param dict config_dict: Initial default configurations.
-    :param str config_object: Name of the class or module containing configurations.
-    :param str config_file: Name of the file containing configurations.
-    :param str config_env:  Name of the environment variable pointing to file containing configurations.
-    :return: MyDojo application
-    :rtype: mydojo.base.MyDojoApp
-    """
-
-    app = mydojo.base.MyDojoApp('mydojo')
-
-    if config_dict and isinstance(config_dict, dict):
-        app.config.update(config_dict)
-    if config_object:
-        app.config.from_object(config_object)
-    if config_file:
-        app.config.from_pyfile(config_file, silent = True)
-    if config_env:
-        app.config.from_envvar(config_env, silent = True)
-
-    _setup_app_logging(app)
-    _setup_app_core(app)
-    _setup_app_db(app)
-    _setup_app_auth(app)
-    _setup_app_babel(app)
-    _setup_app_blueprints(app)
-    _setup_app_cli(app)
 
     return app
