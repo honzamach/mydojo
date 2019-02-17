@@ -102,8 +102,7 @@ setup(
     },
     scripts = [
         'bin/mydojo-init.sh',
-        'bin/mydojo.wsgi',
-        'bin/mydojo-dev.py'
+        'bin/mydojo.wsgi'
     ],
     # Add entry point to custom command line interface.
     #
