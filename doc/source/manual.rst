@@ -13,6 +13,7 @@ Welcome to MyDojo's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   _doclib/deployment
    _doclib/development
    _apidoc/modules
 
