@@ -36,6 +36,15 @@ def validate_email(ctx, param, value):
             "Value '{}' does not look like valid email address.".format(value)
         )
 
+def validate_roles(ctx, param, value):
+    if value:
+        for val in value:
+            if val not in mydojo.const.ROLES:
+                raise click.BadParameter(
+                    "Value '{}' does not look like valid user role.".format(val)
+                )
+        return value
+
 
 user_cli = AppGroup('users', help = "User account management module.")
 
@@ -44,24 +53,27 @@ user_cli = AppGroup('users', help = "User account management module.")
 @click.argument('fullname')
 @click.option('--email', callback = validate_email, help = 'Optional email, login will be used as default')
 @click.password_option()
-@click.option('--enabled/--no-enabled', default=False)
-def users_create(login, fullname, email, password, enabled):
+@click.option('--enabled/--no-enabled', default = False)
+@click.option('--role', callback = validate_roles, help = 'Role to be assigned to the user (multiple)', multiple = True)
+def users_create(login, fullname, email, password, enabled, role):
     """Create new user account."""
     sqlobj = mydojo.db.UserModel()
 
     sqlobj.login    = login
     sqlobj.fullname = fullname
     sqlobj.email    = email or login
+    sqlobj.roles    = role or [mydojo.const.ROLE_USER]
+    sqlobj.enabled  = enabled
     if password:
         sqlobj.set_password(password)
-    sqlobj.enabled  = enabled
 
     click.echo("Creating new user account:")
     click.echo("    - Login:     {}".format(sqlobj.login))
     click.echo("    - Full name: {}".format(sqlobj.fullname))
     click.echo("    - Email:     {}".format(sqlobj.email))
-    click.echo("    - Password:  {}".format(sqlobj.password))
+    click.echo("    - Roles:     {}".format(','.join(sqlobj.roles)))
     click.echo("    - Enabled:   {}".format(sqlobj.enabled))
+    click.echo("    - Password:  {}".format(sqlobj.password))
     try:
         mydojo.db.SQLDB.session.add(sqlobj)
         mydojo.db.SQLDB.session.commit()
@@ -97,6 +109,85 @@ def users_create(login, fullname, email, password, enabled):
             traceback.TracebackException(*sys.exc_info())
         )
 
+@user_cli.command('roleadd')
+@click.argument('login', callback = validate_email)
+@click.argument('role', callback = validate_roles, nargs = -1)
+def users_roleadd(login, role):
+    """Add role(s) to given user account."""
+    if not role:
+        return
+    click.echo("Adding roles '{}' to user account '{}'".format(','.join(role), login))
+    try:
+        item = mydojo.db.SQLDB.session.query(
+            mydojo.db.UserModel
+        ).filter(
+            mydojo.db.UserModel.login == login
+        ).one()
+
+        current_roles = set(item.roles)
+        for i in role:
+            current_roles.add(i)
+        item.roles = list(current_roles)
+
+        mydojo.db.SQLDB.session.add(item)
+        mydojo.db.SQLDB.session.commit()
+        click.secho(
+            "[OK] User account was successfully updated",
+            fg = 'green'
+        )
+
+    except sqlalchemy.orm.exc.NoResultFound:
+        click.secho(
+            "[FAIL] User account '{}' was not found.".format(login),
+            fg = 'red'
+        )
+
+    except Exception:  # pylint: disable=locally-disabled,broad-except
+        mydojo.db.SQLDB.session.rollback()
+        click.echo(
+            traceback.TracebackException(*sys.exc_info())
+        )
+
+@user_cli.command('roledel')
+@click.argument('login', callback = validate_email)
+@click.argument('role', callback = validate_roles, nargs = -1)
+def users_roledel(login, role):
+    """Delete role(s) to given user account."""
+    click.echo("Deleting roles '{}' from user account '{}'".format(','.join(role), login))
+    try:
+        item = mydojo.db.SQLDB.session.query(
+            mydojo.db.UserModel
+        ).filter(
+            mydojo.db.UserModel.login == login
+        ).one()
+
+        current_roles = set(item.roles)
+        for i in role:
+            try:
+                current_roles.remove(i)
+            except KeyError:
+                pass
+        item.roles = list(current_roles)
+
+        mydojo.db.SQLDB.session.add(item)
+        mydojo.db.SQLDB.session.commit()
+        click.secho(
+            "[OK] User account was successfully updated",
+            fg = 'green'
+        )
+
+    except sqlalchemy.orm.exc.NoResultFound:
+        click.secho(
+            "[FAIL] User account '{}' was not found.".format(login),
+            fg = 'red'
+        )
+
+    except Exception:  # pylint: disable=locally-disabled,broad-except
+        mydojo.db.SQLDB.session.rollback()
+        click.echo(
+            traceback.TracebackException(*sys.exc_info())
+        )
+
 @user_cli.command('delete')
 @click.argument('login', callback = validate_email)
 def users_delete(login):
@@ -116,6 +207,12 @@ def users_delete(login):
             fg = 'green'
         )
 
+    except sqlalchemy.orm.exc.NoResultFound:
+        click.secho(
+            "[FAIL] User account '{}' was not found.".format(login),
+            fg = 'red'
+        )
+
     except Exception:  # pylint: disable=locally-disabled,broad-except
         mydojo.db.SQLDB.session.rollback()
         click.echo(
@@ -130,7 +227,7 @@ def users_list():
         if items:
             click.echo("List of existing user accounts:")
             for item in items:
-                click.echo("    - {}".format(item.login))
+                click.echo("    - {}: {} ({})".format(item.login, item.fullname, ','.join(item.roles)))
         else:
             click.echo("There are currently no user accounts in the database.")
 

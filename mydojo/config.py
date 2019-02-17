@@ -97,11 +97,7 @@ class Config:  # pylint: disable=locally-disabled,too-few-public-methods
     # MyDojo custom configurations.
     #
 
-    ROLES = [
-        mydojo.const.ROLE_USER,
-        mydojo.const.ROLE_DEVELOPER,
-        mydojo.const.ROLE_ADMIN
-    ]
+    ROLES = mydojo.const.ROLES
     """List of all user roles supported by the MyDojo application."""
 
     MYDOJO_LOGIN_VIEW = 'auth_dev.login'
@@ -187,6 +183,7 @@ class Config:  # pylint: disable=locally-disabled,too-few-public-methods
 
     MYDOJO_ADMINS = ['root']
     """List of system administrator emails."""
+
 
 class ProductionConfig(Config):  # pylint: disable=locally-disabled,too-few-public-methods
     """
