@@ -5,7 +5,48 @@
 {% block content %}
                 <div class="jumbotron" style="margin-top: 1em;">
                     <div class="col-sm-8 mx-auto">
-                        <h1 class="text-center">{{ get_icon(mydojo_current_view.get_view_icon()) }} {{ mydojo_current_view.get_view_title() }}</h1>
+                        <h1 class="text-center">
+                            {{ get_icon(mydojo_current_view.get_view_icon()) }} {{ mydojo_current_view.get_view_title() }}
+                        </h1>
+                    </div>
+                </div>
+                <div class="card-deck">
+                    <div class="card">
+                        <div class="card-header text-center">
+                            <h1>
+                                <i class="fas fa-fw fa-graduation-cap" title="{{ _('Education') }}" style="font-size: 250%"></i>
+                            </h1>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ _('Education') }}</h5>
+                            <p class="card-text">
+                                {{ _('Master`s degree from <a href="https://www.cvut.cz/en">CTU</a>.') | safe }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header text-center">
+                            <h1>
+                                <i class="fas fa-fw fa-user-hard-hat" title="{{ _('Occupation') }}" style="font-size: 250%"></i>
+                            </h1>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">
+                                {{ _('Developer and administrator at <a href="https://www.cesnet.cz/?lang=en">CESNET</a>.') | safe }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header text-center">
+                            <h1>
+                                <i class="fas fa-fw fa-couch" title="{{ _('Hobbies') }}" style="font-size: 250%"></i>
+                            </h1>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">
+                                {{ _('Climbing, running, cycling, reading, movies, gaming.') | safe }}
+                            </p>
+                        </div>
                     </div>
                 </div>
 {% endblock %}
