@@ -91,6 +91,7 @@ def create_app_full(
     _setup_app_core(app)
     _setup_app_db(app)
     _setup_app_auth(app)
+    _setup_app_acl(app)
     _setup_app_babel(app)
     _setup_app_blueprints(app)
     _setup_app_cli(app)
