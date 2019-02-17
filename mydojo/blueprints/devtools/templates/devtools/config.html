@@ -1,0 +1,77 @@
+{%- extends "_layout.html" %}
+
+{%- block content %}
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <h2>{{ mydojo_current_view.get_view_title() }}</h2>
+
+                    <h3>Permissions</h3>
+                    <table class="table">
+                        {%- for key, val in get_endpoints_dict()|dictsort%}
+                        <tr>
+                            <td>
+                                {{ get_icon('module-{}'.format(val.module_name)) }}
+                                {{ get_icon(val.get_view_icon()) }}
+                            </td>
+                            <td>
+                                {{ key }}
+                            </td>
+                            <td>
+                                {%- if val.authentication %}
+                                authenticated
+                                {%- else %}
+                                anonymous
+                                {%- endif %}
+                            </td>
+                            <td>
+                                {%- if val.authorization %}
+                                    {%- for auitem in val.authorization %}
+                                        {{ auitem|pprint }}
+                                    {%- endfor %}
+                                {%- else %}
+                                unauthorized
+                                {%- endif %}
+                            </td>
+                        </tr>
+                        {%- endfor %}
+                    </table>
+
+                    <h3>Timezone settings</h3>
+                    <table class="table">
+                        <tr>
+                            <th>UTC time:</th>
+                            <td>{{ get_datetime_utc() }}</td>
+                        </tr>
+                        <tr>
+                            <th>Server local time:</th>
+                            <td>{{ get_datetime_local() }}</td>
+                        </tr>
+                        <tr>
+                            <th>User preference timezone:</th>
+                            <td>{{ babel_format_datetime(get_datetime_utc()) }} ({{ g['timezone'] }})</td>
+                        </tr>
+                    </table>
+
+                    <h3>Configuration</h3>
+                    <pre class="pre-scrollable">{{ config|pprint }}</pre>
+
+                    <h3>Session</h3>
+                    <pre class="pre-scrollable">{{ session|pprint }}</pre>
+
+                    <h3>Current user</h3>
+                    <pre class="pre-scrollable">{{ current_user|pprint }}</pre>
+
+                    <h3>G</h3>
+                    <pre class="pre-scrollable">{%- for k in g %}{{ k }}: {{ g[k]|pprint }}{%- endfor %}</pre>
+
+                    <h3>Menu - main</h3>
+                    <pre class="pre-scrollable">
+{{ mydojo_navbar_main|pprint }}
+---
+{{ mydojo_navbar_main.get_entries()|pprint }}</pre>
+
+                </div><!-- /.col-lg-12 -->
+            </div><!-- /.row -->
+
+{%- endblock content %}
