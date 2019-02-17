@@ -68,6 +68,9 @@ CFGKEY_MODULES_LOADED = 'MYDOJO_MODULES_LOADED'
 CFGKEY_MODULES_REQUESTED = 'MYDOJO_MODULES'
 """Configuration key name: List of all requested blueprints."""
 
+CFGKEY_MYDOJO_NAVBAR_MAIN = 'MYDOJO_NAVBAR_MAIN'
+"""Configuration key name: skeleton of main application navigation bar."""
+
 
 RESOURCE_BABEL = 'babel'
 """Name for the ``flask_babel.Babel`` object within the application resources."""
@@ -116,10 +119,13 @@ FA_ICONS = {
     #
     # Built-in module icons.
     #
-    'module-home':   '<i class="fas fa-fw fa-home"></i>',
-    'module-design': '<i class="fas fa-fw fa-palette"></i>',
-    'module-lab':    '<i class="fas fa-fw fa-flask"></i>',
-
+    'module-auth-api': '<i class="fas fa-fw fa-key"></i>',
+    'module-auth-dev': '<i class="fas fa-fw fa-key"></i>',
+    'module-auth-env': '<i class="fas fa-fw fa-key"></i>',
+    'module-home':     '<i class="fas fa-fw fa-home"></i>',
+    'module-design':   '<i class="fas fa-fw fa-palette"></i>',
+    'module-lab':      '<i class="fas fa-fw fa-flask"></i>',
+    'module-devtools': '<i class="fas fa-fw fa-bug"></i>',
 
     #
     # Flash message/alert icons.

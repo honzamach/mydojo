@@ -98,7 +98,7 @@ def _filter_menu_entries(entries, **kwargs):
                     if not authspec.can():
                         #print("Hiding menu entry '{}', accessible only to '{}'.".format(entry_id, str(authspec)))
                         hideflag = True
-                # Authorization rules may be specified as indices to hawat.acl permission dictionary.
+                # Authorization rules may be specified as indices to mydojo.auth permission dictionary.
                 else:
                     if not mydojo.auth.PERMISSIONS[authspec].can():
                         #print("Hiding menu entry '{}', accessible only to '{}'.".format(entry_id, str(authspec)))

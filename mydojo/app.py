@@ -93,6 +93,7 @@ def create_app_full(
     _setup_app_auth(app)
     _setup_app_acl(app)
     _setup_app_babel(app)
+    _setup_app_menu(app)
     _setup_app_blueprints(app)
     _setup_app_cli(app)
 
@@ -720,6 +721,18 @@ def _setup_app_babel(app):
 
     return app
 
+def _setup_app_menu(app):
+    """
+    Setup default application menu skeleton.
+
+    :param mydojo.base.MyDojoApp app: MyDojo application to be modified.
+    :return: Modified MyDojo application
+    :rtype: mydojo.base.MyDojoApp
+    """
+    for entry in app.config[mydojo.const.CFGKEY_MYDOJO_NAVBAR_MAIN]:
+        app.navbar_main.add_entry(**entry)
+
+    return app
 
 def _setup_app_blueprints(app):
     """

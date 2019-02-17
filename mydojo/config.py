@@ -163,7 +163,7 @@ class Config:  # pylint: disable=locally-disabled,too-few-public-methods
             'ident': 'admin',
             'position': 300,
             'authentication': True,
-            'authorization': ['power'],
+            'authorization': ['admin'],
             'title': lazy_gettext('Administration'),
             'resptitle': True,
             'icon': 'section-administration'
