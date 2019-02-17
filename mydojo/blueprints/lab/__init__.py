@@ -92,7 +92,7 @@ class LabBlueprint(MyDojoBlueprint):
         app.navbar_main.add_entry(
             'view',
             'lab',
-            position = 1,
+            position = 5,
             view = IndexView,
             hidelegend = True,
             resptitle = True
