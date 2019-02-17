@@ -32,7 +32,7 @@ SPHINXBUILDDIR  = doc/build
 
 VENV_PYTHON = python3
 VENV_PATH   = venv
-PYTHON      = python
+PYTHON      = python3
 PIP         = pip
 NOSETESTS   = nosetests
 PYBABEL     = pybabel
