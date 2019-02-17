@@ -22,7 +22,7 @@ from flask.cli import FlaskGroup
 
 
 # Expose main application factory to current namespace
-from .app import create_app
+from .app import create_app, create_app_full
 
 
 @click.group(cls = FlaskGroup, create_app = create_app)

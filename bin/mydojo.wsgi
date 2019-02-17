@@ -16,4 +16,8 @@ import mydojo
 # capabilities or for purposes of testing. Please refer to the documentation
 # for more information.
 #
-application = mydojo.create_app()
+application = mydojo.create_app_full(
+    config_object = 'mydojo.config.ProductionConfig',
+    config_file   = '/etc/mydojo/mydojo.conf',
+    config_env    = 'FLASK_CONFIG_FILE'
+)
