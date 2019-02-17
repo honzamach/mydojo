@@ -1,13 +1,13 @@
-# Czech translations for PROJECT.
-# Copyright (C) 2019 ORGANIZATION
-# This file is distributed under the same license as the PROJECT project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+# Czech translations for MyDojo.
+# Copyright (C) since 2018 Honza Mach <honza.mach.ml@gmail.com>
+# This file is part of MyDojo package (https://github.com/honzamach/mydojo).
+# Use of this source is governed by the MIT license, see LICENSE file.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-02-05 20:18+0100\n"
+"POT-Creation-Date: 2019-02-17 19:58+0100\n"
 "PO-Revision-Date: 2019-02-05 20:18+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: cs\n"
@@ -18,48 +18,180 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.6.0\n"
 
-#: app.py:310
+#: app.py:215
+msgid "My personal Internet dojo"
+msgstr "Mé osobní Internetové dojo"
+
+#: app.py:444
+msgid "Please log in to access this page."
+msgstr "Pro přístup k této stránce se prosím přihlaste."
+
+#: app.py:471
+msgid "You have been successfully logged out."
+msgstr "Odhlášení proběhlo úspěšně."
+
+#: app.py:625
 #, python-format
 msgid "Locale was succesfully changed to <strong>%(lcln)s (%(lclc)s)</strong>."
 msgstr "Lokalizace byla úspěšně změněna na <strong>%(lcln)s (%(lclc)s)</strong>."
 
-#: blueprints/design/templates/_layout.html:78
+#: config.py:150
+msgid "Dashboards"
+msgstr "Dashboardy"
+
+#: config.py:158
+msgid "More"
+msgstr "Více"
+
+#: config.py:168
+msgid "Administration"
+msgstr "Administrace"
+
+#: config.py:178
+msgid "Development"
+msgstr "Vývoj"
+
+#: forms.py:84
+#, python-format
+msgid "The \"%(val)s\" value does not look like valid email address."
+msgstr "Hodnota \"%(val)s\" nevypadá jako platná emailová adresa."
+
+#: blueprints/auth_dev/__init__.py:108
+#, python-format
+msgid ""
+"Please be aware, that the account for user <strong>%(login)s "
+"(%(name)s)</strong> is currently disabled."
+msgstr ""
+"Prosím berte na vědomí, že uživatelský účet <strong>%(login)s "
+"(%(name)s)</strong> je v tuto chvíli neaktivní."
+
+#: blueprints/auth_dev/__init__.py:129 blueprints/auth_pwd/__init__.py:132
+#, python-format
+msgid "You have been successfully logged in as <strong>%(user)s</strong>."
+msgstr ""
+"Přihlášení proběhlo úspěšně pod uživatelským účtem "
+"<strong>%(user)s</strong>."
+
+#: blueprints/auth_dev/__init__.py:156 blueprints/auth_pwd/__init__.py:152
+#: blueprints/auth_pwd/__init__.py:166
+msgid "You have entered wrong login credentials."
+msgstr "Byly zadány neplatné přihlašovací údaje."
+
+#: blueprints/auth_dev/__init__.py:164
+#, python-format
+msgid "Unable to perform developer login as <strong>%(user)s</strong>."
+msgstr ""
+"Nelze provést přihlášení vývojáře pod uživatelským účtem "
+"<strong>%(user)s</strong>."
+
+#: blueprints/auth_dev/__init__.py:170
+msgid "Unable to perform developer login."
+msgstr "Nelze provést přihlášení vývojáře."
+
+#: blueprints/auth_dev/forms.py:52
+msgid "User account:"
+msgstr "Uživatelský účet:"
+
+#: blueprints/auth_dev/forms.py:60 blueprints/auth_pwd/forms.py:52
+#: blueprints/design/templates/_macros_site.html:59
+msgid "Login"
+msgstr "Přihlásit"
+
+#: blueprints/auth_dev/forms.py:63 blueprints/auth_pwd/forms.py:55
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: blueprints/auth_dev/templates/auth_dev/login.html:10
+#: blueprints/design/templates/_macros_site.html:63
+msgid "Developer login"
+msgstr "Přihlášení vývojáře"
+
+#: blueprints/auth_pwd/__init__.py:110
+#, python-format
+msgid ""
+"Account for user <strong>%(login)s (%(name)s)</strong> is currently "
+"disabled, you may not login."
+msgstr ""
+"Uživatelský účet <strong>%(login)s (%(name)s)</strong> je v tuto chvíli "
+"neaktivní, přihlášení není možné."
+
+#: blueprints/auth_pwd/__init__.py:174
+#, python-format
+msgid "Unable to perform password login as <strong>%(user)s</strong>."
+msgstr ""
+"Nelze provést přihlášení heslem pod uživatelským účtem "
+"<strong>%(user)s</strong>."
+
+#: blueprints/auth_pwd/__init__.py:180
+msgid "Unable to perform password login."
+msgstr "Nelze provést přihlášení heslem."
+
+#: blueprints/auth_pwd/forms.py:37
+msgid "Login:"
+msgstr "Login:"
+
+#: blueprints/auth_pwd/forms.py:45
+msgid "Password:"
+msgstr "Heslo:"
+
+#: blueprints/auth_pwd/templates/auth_pwd/login.html:10
+#: blueprints/design/templates/_macros_site.html:58
+msgid "Password login"
+msgstr "Přihlášení heslem"
+
+#: blueprints/design/templates/_layout.html:79
 msgid "... LOADING ..."
 msgstr "... NAČÍTÁM ..."
 
-#: blueprints/design/templates/_layout.html:86
+#: blueprints/design/templates/_layout.html:90
 msgid "Toggle navigation"
 msgstr "Zobrazit navigaci"
 
-#: blueprints/design/templates/_layout.html:94
-msgid "Home"
-msgstr "Domů"
-
-#: blueprints/design/templates/_layout.html:94
-msgid "current"
-msgstr "aktuální"
-
-#: blueprints/design/templates/_layout.html:135
+#: blueprints/design/templates/_layout.html:134
+#: blueprints/design/templates/_layout.html:137
 msgid "Page generated at: "
 msgstr "Stránka vygenerována v: "
 
-#: blueprints/design/templates/_layout.html:136
+#: blueprints/design/templates/_layout.html:139
+#: blueprints/design/templates/_layout.html:142
 msgid "Page generated in: "
 msgstr "Stránka vygenerována za: "
 
-#: blueprints/design/templates/_layout.html:138
+#: blueprints/design/templates/_layout.html:148
 msgid "since"
 msgstr "od"
 
-#: blueprints/design/templates/_layout.html:139
+#: blueprints/design/templates/_layout.html:149
 msgid "Powered by: "
 msgstr "Postavené na: "
 
-#: blueprints/design/templates/_macros_site.html:16
+#: blueprints/design/templates/_macros_form.html:29
+msgid "Nothing selected"
+msgstr "Bez volby"
+
+#: blueprints/design/templates/_macros_site.html:20
+#: blueprints/design/templates/_macros_site.html:30
+msgid "current"
+msgstr "aktuální"
+
+#: blueprints/design/templates/_macros_site.html:48
+msgid "Anonymous"
+msgstr "Anonym"
+
+#: blueprints/design/templates/_macros_site.html:53
+#: blueprints/design/templates/_macros_site.html:54
+msgid "Logout"
+msgstr "Odhlásit"
+
+#: blueprints/design/templates/_macros_site.html:64
+msgid "Login (dev)"
+msgstr "Přihlásit (dev)"
+
+#: blueprints/design/templates/_macros_site.html:82
 msgid "Switch site locale"
 msgstr "Změnit lokalizaci stránek"
 
-#: blueprints/design/templates/_macros_site.html:43
+#: blueprints/design/templates/_macros_site.html:109
 msgid "Close"
 msgstr "Zavřít"
 
@@ -73,7 +205,8 @@ msgstr "Bad Request"
 msgid ""
 "It seems you have done something naughty, perhaps <a href=\"%(link)s\">go"
 " somewhere nice</a> instead."
-msgstr "Vypadá to, že s Vaším požadavkem nebylo vše v pořádku. Zkuste třeba <a "
+msgstr ""
+"Vypadá to, že s Vaším požadavkem nebylo vše v pořádku. Zkuste třeba <a "
 "href=\"%(link)s\">jít</a> někam jinam."
 
 #: blueprints/design/templates/errors/e403.html:3
@@ -124,12 +257,61 @@ msgid "Internal Server Error"
 msgstr "Internal Server Error"
 
 #: blueprints/design/templates/errors/e500.html:15
-msgid "We are sorry, but something went terribly wrong. Please try again later."
+#, python-format
+msgid ""
+"We are sorry, but something went terribly wrong. Please try again later, "
+"or perhaps <a href=\"%(link)s\">go somewhere nice</a> instead."
 msgstr ""
-"Je nám to líto, ale něco se ošklivě pokazilo. Zkuste to prosím znovu "
-"později."
+"Je nám líto, ale něco se ošklivě pokazilo. Zkuste to prosím později, nebo"
+" zkuste <a href=\"%(link)s\">jít</a> někam jinam."
 
-#: templates/index.html:3 templates/index.html:8
-msgid "Welcome to MyDojo!"
-msgstr "Vítejte do MyDojo!"
+#: blueprints/devtools/__init__.py:69
+msgid "View system configuration"
+msgstr "Zobrazení konfigurace systému"
+
+#: blueprints/devtools/__init__.py:74
+msgid "System configuration"
+msgstr "Konfigurace systému"
+
+#: blueprints/home/__init__.py:66
+msgid "Welcome to my Internet dojo"
+msgstr "Vítejte do mého Internetového dojo"
+
+#: blueprints/home/__init__.py:71
+msgid "Home"
+msgstr "Domů"
+
+#: blueprints/home/templates/home/index.html:17
+msgid "Education"
+msgstr "Vzdělání"
+
+#: blueprints/home/templates/home/index.html:22
+msgid "Master`s degree from <a href=\"https://www.cvut.cz/en\">CTU</a>."
+msgstr "Magisterský titul na <a href=\"https://www.cvut.cz/\">ČVUT</a>."
+
+#: blueprints/home/templates/home/index.html:29
+msgid "Occupation"
+msgstr "Zaměstnání"
+
+#: blueprints/home/templates/home/index.html:34
+msgid ""
+"Developer and administrator at <a "
+"href=\"https://www.cesnet.cz/?lang=en\">CESNET</a>."
+msgstr "Vývojář a administrátor u <a href=\"https://www.cesnet.cz/\">CESNETu</a>."
+
+#: blueprints/home/templates/home/index.html:41
+msgid "Hobbies"
+msgstr "Koníčky"
+
+#: blueprints/home/templates/home/index.html:46
+msgid "Climbing, running, cycling, reading, movies, gaming."
+msgstr "Lezení, běh, cyklistika, čtení, filmy, hry."
+
+#: blueprints/lab/__init__.py:66
+msgid "Welcome to my laboratory"
+msgstr "Vítejte do mé laboratoře"
+
+#: blueprints/lab/__init__.py:71
+msgid "Lab"
+msgstr "Laboratoř"
 

@@ -157,11 +157,10 @@ class LoginView(HTMLMixin, SQLAlchemyMixin, SimpleView):
 
             except Exception:  # pylint: disable=locally-disabled,broad-except
                 self.flash(
-                    gettext(
-                        "Unable to perform developer login as '{}'.".format(
-                            form.login.data
-                        )
-                    ),
+                    flask.Markup(gettext(
+                        "Unable to perform developer login as <strong>%(user)s</strong>.",
+                        user = str(form.login.data)
+                    )),
                     mydojo.const.FLASH_FAILURE
                 )
                 flask.current_app.log_exception_with_label(

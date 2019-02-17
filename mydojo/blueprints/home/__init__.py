@@ -63,7 +63,7 @@ class IndexView(HTMLMixin, SimpleView):
     @classmethod
     def get_view_title(cls, **kwargs):
         """*Implementation* of :py:func:`mydojo.base.BaseView.get_view_title`."""
-        return lazy_gettext('Welcome to my internet dojo')
+        return lazy_gettext('Welcome to my Internet dojo')
 
     @classmethod
     def get_menu_title(cls, **kwargs):

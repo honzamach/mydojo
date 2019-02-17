@@ -191,7 +191,7 @@ def _setup_app_core(app):
         """
         return dict(
             mydojo_appname      = 'MyDojo',
-            mydojo_appslogan    = flask_babel.lazy_gettext('My personal internet dojo'),
+            mydojo_appslogan    = flask_babel.lazy_gettext('My personal Internet dojo'),
             mydojo_version      = mydojo.__version__,
             mydojo_current_app  = app,
             mydojo_current_view = app.get_endpoint_class(flask.request.endpoint, True),
