@@ -70,7 +70,7 @@ setup(
     # TODO: This solution has some issues when installing the project in editable mode
     # for the first time.
     #version = mydojo.__version__,
-    version = '0.1.0',
+    version = '0.4.0',
     description = 'My personal internet Dojo',
     long_description = long_description,
     classifiers = [
