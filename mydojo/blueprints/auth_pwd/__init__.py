@@ -127,6 +127,10 @@ class LoginView(HTMLMixin, SQLAlchemyMixin, SimpleView):
 
                     flask_login.login_user(user)
 
+                    # Mark the login time into database.
+                    user.logintime = datetime.datetime.utcnow()
+                    self.dbsession.commit()
+
                     # Tell Flask-Principal the identity changed. Access to private method
                     # _get_current_object is according to the Flask documentation:
                     #   http://flask.pocoo.org/docs/1.0/reqcontext/#notes-on-proxies
