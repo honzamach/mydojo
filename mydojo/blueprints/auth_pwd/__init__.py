@@ -31,6 +31,7 @@ __author__ = "Honza Mach <honza.mach.ml@gmail.com>"
 
 
 import sys
+import datetime
 import traceback
 import sqlalchemy
 
@@ -40,7 +41,7 @@ import sqlalchemy
 import flask
 import flask_login
 import flask_principal
-from flask_babel import gettext
+from flask_babel import gettext, lazy_gettext
 
 #
 # Custom modules.
@@ -71,6 +72,16 @@ class LoginView(HTMLMixin, SQLAlchemyMixin, SimpleView):
     def get_view_icon(cls):
         """*Implementation* of :py:func:`mydojo.base.BaseView.get_view_icon`."""
         return 'login'
+
+    @classmethod
+    def get_view_title(cls, **kwargs):
+        """*Implementation* of :py:func:`mydojo.base.BaseView.get_view_title`."""
+        return lazy_gettext('Password login')
+
+    @classmethod
+    def get_menu_title(cls, **kwargs):
+        """*Implementation* of :py:func:`mydojo.base.BaseView.get_menu_title`."""
+        return lazy_gettext('Login (pwd)')
 
     @property
     def dbmodel(self):
@@ -106,7 +117,7 @@ class LoginView(HTMLMixin, SQLAlchemyMixin, SimpleView):
                     if not user.enabled:
                         self.flash(
                             flask.Markup(gettext(
-                                'Account for user <strong>%(login)s (%(name)s)</strong> is currently disabled, you may not login.',
+                                'Your user account <strong>%(login)s (%(name)s)</strong> is currently disabled, you are not permitted to log in.',
                                 login = user.login,
                                 name = user.fullname
                             )),
@@ -126,8 +137,9 @@ class LoginView(HTMLMixin, SQLAlchemyMixin, SimpleView):
 
                     self.flash(
                         flask.Markup(gettext(
-                            'You have been successfully logged in as <strong>%(user)s</strong>.',
-                            user = str(user)
+                            'You have been successfully logged in as <strong>%(login)s (%(name)s)</strong>.',
+                            login = user.login,
+                            name = user.fullname
                         )),
                         mydojo.const.FLASH_SUCCESS
                     )
@@ -175,7 +187,7 @@ class LoginView(HTMLMixin, SQLAlchemyMixin, SimpleView):
                 )
                 flask.current_app.log_exception_with_label(
                     traceback.TracebackException(*sys.exc_info()),
-                    gettext('Unable to perform password login.'),
+                    'Unable to perform password login.',
                 )
 
         self.response_context.update(

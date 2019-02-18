@@ -1,5 +1,7 @@
 {%- extends "_layout.html" %}
 
+{% block title %}{{ mydojo_current_view.get_view_title() }}{% endblock %}
+
 {%- block content %}
 
             <div class="row">
@@ -7,7 +9,7 @@
 
                     <form method="POST" action="{{ url_for('auth_dev.login', next = next) }}">
                         <fieldset>
-                            <legend>{{ get_icon('login') }} {{ _('Developer login') }}</legend>
+                            <legend>{{ get_icon(mydojo_current_view.get_view_icon()) }} {{ mydojo_current_view.get_view_title() }}</legend>
 
                             {{ macros_form.render_form_item_select(form.login) }}
 

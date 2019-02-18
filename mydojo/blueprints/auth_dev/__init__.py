@@ -54,7 +54,7 @@ import sqlalchemy
 import flask
 import flask_login
 import flask_principal
-from flask_babel import gettext
+from flask_babel import gettext, lazy_gettext
 
 #
 # Custom modules.
@@ -85,6 +85,16 @@ class LoginView(HTMLMixin, SQLAlchemyMixin, SimpleView):
     def get_view_icon(cls):
         """*Implementation* of :py:func:`mydojo.base.BaseView.get_view_icon`."""
         return 'login'
+
+    @classmethod
+    def get_view_title(cls, **kwargs):
+        """*Implementation* of :py:func:`mydojo.base.BaseView.get_view_title`."""
+        return lazy_gettext('Developer login')
+
+    @classmethod
+    def get_menu_title(cls, **kwargs):
+        """*Implementation* of :py:func:`mydojo.base.BaseView.get_menu_title`."""
+        return lazy_gettext('Login (dev)')
 
     @property
     def dbmodel(self):
@@ -165,7 +175,7 @@ class LoginView(HTMLMixin, SQLAlchemyMixin, SimpleView):
                 )
                 flask.current_app.log_exception_with_label(
                     traceback.TracebackException(*sys.exc_info()),
-                    gettext('Unable to perform developer login.'),
+                    'Unable to perform developer login.',
                 )
 
         self.response_context.update(
