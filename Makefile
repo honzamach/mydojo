@@ -94,6 +94,8 @@ help:
 	@echo "  * $(GREEN)deps-webui-upgrade$(NC): upgrade web interface dependencies"
 	@echo "  * $(GREEN)deps-postgresql$(NC): configure required PostgreSQL user accounts and databases"
 	@echo ""
+	@echo "  * $(GREEN)run-webui-dev$(NC): run development web server with development configuration"
+	@echo ""
 	@echo "  * $(GREEN)clean-pycs$(NC): clean up Python compiled files"
 	@echo "  * $(GREEN)clean-build-docs$(NC): clean up documentation build directories"
 	@echo "  * $(GREEN)clean-build-python$(NC): clean up Python build directories"
@@ -299,7 +301,7 @@ deps-postgresql: FORCE
 
 run-webui-dev:
 	@echo "\n$(GREEN)*** Running development web server with development configuration ***$(NC)\n"
-	@FLASK_ENV=development FLASK_CONFIG=development FLASK_CONFIG_FILE=$(shell realpath ./$(PROJECT_ID).local.conf) $(PROJECT_ID)-cli run
+	FLASK_ENV=development FLASK_CONFIG=development FLASK_CONFIG_FILE=$(shell realpath ./$(PROJECT_ID).local.conf) $(PROJECT_ID)-cli run
 
 
 #-------------------------------------------------------------------------------
