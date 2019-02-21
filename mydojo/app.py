@@ -21,6 +21,8 @@ __author__ = "Honza Mach <honza.mach.ml@gmail.com>"
 
 
 import os
+import sys
+import traceback
 import datetime
 import jinja2
 from babel import Locale
@@ -46,6 +48,7 @@ import mydojo.db
 import mydojo.auth
 import mydojo.forms
 import mydojo.command
+import mydojo.errors
 
 
 APP_NAME = 'mydojo'
@@ -154,27 +157,40 @@ def _setup_app_core(app):
     @app.errorhandler(400)
     def eh_badrequest(err):  # pylint: disable=locally-disabled,unused-variable
         """Flask error handler to be called to service HTTP 400 error."""
-        return flask.render_template('errors/e400.html', error_obj = err), 400
+        return mydojo.errors.error_handler_switch(400, err)
 
     @app.errorhandler(403)
     def eh_forbidden(err):  # pylint: disable=locally-disabled,unused-variable
         """Flask error handler to be called to service HTTP 403 error."""
-        return flask.render_template('errors/e403.html', error_obj = err), 403
+        return mydojo.errors.error_handler_switch(403, err)
 
     @app.errorhandler(404)
     def eh_page_not_found(err):  # pylint: disable=locally-disabled,unused-variable
         """Flask error handler to be called to service HTTP 404 error."""
-        return flask.render_template('errors/e404.html', error_obj = err), 404
+        return mydojo.errors.error_handler_switch(404, err)
+
+    @app.errorhandler(405)
+    def eh_method_not_allowed(err):  # pylint: disable=locally-disabled,unused-variable
+        """Flask error handler to be called to service HTTP 405 error."""
+        return mydojo.errors.error_handler_switch(405, err)
 
     @app.errorhandler(410)
     def eh_gone(err):  # pylint: disable=locally-disabled,unused-variable
         """Flask error handler to be called to service HTTP 410 error."""
-        return flask.render_template('errors/e410.html', error_obj = err), 410
+        return mydojo.errors.error_handler_switch(410, err)
 
     @app.errorhandler(500)
     def eh_internal_server_error(err):  # pylint: disable=locally-disabled,unused-variable
         """Flask error handler to be called to service HTTP 500 error."""
-        return flask.render_template('errors/e500.html', error_obj = err), 500
+        flask.current_app.logger.critical(
+            "Internal Server Error:\n%s",
+            ''.join(
+                traceback.TracebackException(
+                    *sys.exc_info()
+                ).format()
+            )
+        )
+        return mydojo.errors.error_handler_switch(500, err)
 
     @app.before_request
     def before_request():  # pylint: disable=locally-disabled,unused-variable

@@ -57,6 +57,7 @@ import flask_login
 import mydojo.const
 import mydojo.db
 import mydojo.menu
+import mydojo.errors
 from mydojo.forms import get_redirect_target
 
 
@@ -289,9 +290,9 @@ class HTMLMixin:
     def abort(status_code, message = None):  # pylint: disable=locally-disabled,unused-argument
         """
         Abort request processing with ``flask.abort`` function and custom status
-        code. Return response as HTML error page.
+        code and optional additional message. Return response as HTML document.
         """
-        flask.abort(status_code)
+        flask.abort(status_code, message)
 
     def flash(self, message, level = 'info'):  # pylint: disable=locally-disabled,no-self-use
         """
@@ -353,14 +354,11 @@ class AJAXMixin:
     def abort(status_code, message = None):
         """
         Abort request processing with ``flask.abort`` function and custom status
-        code. Return response as JSON document.
+        code and optional additional message. Return response as JSON document.
         """
-        response = flask.jsonify({
-            'status': status_code,
-            'message': message,
-        })
-        response.status_code = status_code
-        flask.abort(response)
+        flask.abort(
+            mydojo.errors.api_error_response(status_code, message)
+        )
 
     def flash(self, message, level = 'info'):  # pylint: disable=locally-disabled,no-self-use
         """
