@@ -1,0 +1,16 @@
+{{ _('Dear administrator,') | wordwrap }}
+
+{{ _('a new account "%(item_id)s" was just registered to %(app_name). Please review the following request and activate or delete the account:', item_id = account.login) | wordwrap }}
+
+    {{ '{:16s}'.format(_('Login:')) }} {{ account.login }}
+    {{ '{:16s}'.format(_('Full name:')) }} {{ account.fullname }}
+    {{ '{:16s}'.format(_('Email:')) }} {{ account.email }}
+    {{ '{:16s}'.format(_('Organization:')) }} {{ account.organization }}
+
+{{ _('User has provided following justification to be given access to the system:') | wordwrap }}
+
+{{ justification | wordwrap(width=75, break_long_words=False) | indent(width=4, indentfirst=True) }}
+
+{{ _('Have a nice day') | wordwrap }}
+
+-- {{ mydojo_appname }}

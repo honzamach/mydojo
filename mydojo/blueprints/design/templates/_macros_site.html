@@ -56,12 +56,17 @@
                                 {%- else %}
                                     {%- if check_endpoint_exists('auth_pwd.login') %}
                                 <a class="dropdown-item" href="{{ url_for('auth_pwd.login') }}" title="{{ _('Password login') }}">
-                                    {{ _('Login') }}
+                                    {{ _('Login (pwd)') }}
                                 </a>
                                     {%- endif %}
                                     {%- if check_endpoint_exists('auth_dev.login') %}
                                 <a class="dropdown-item" href="{{ url_for('auth_dev.login') }}" title="{{ _('Developer login') }}">
                                     {{ _('Login (dev)') }}
+                                </a>
+                                    {%- endif %}
+                                    {%- if check_endpoint_exists('auth_pwd.register') %}
+                                <a class="dropdown-item" href="{{ url_for('auth_pwd.register') }}" title="{{ _('Register account') }}">
+                                    {{ _('Register (pwd)') }}
                                 </a>
                                     {%- endif %}
                                 {%- endif %}

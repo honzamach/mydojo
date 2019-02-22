@@ -106,8 +106,11 @@ class BaseConfig:  # pylint: disable=locally-disabled,too-few-public-methods
     ROLES = mydojo.const.ROLES
     """List of all user roles supported by the MyDojo application."""
 
-    MYDOJO_LOGIN_VIEW = 'auth_dev.login'
-    """Default login view."""
+    MYDOJO_LOGIN_VIEW = 'auth_pwd.login'
+    """
+    Default login view. Users will be redirected to this view in case they are not
+    authenticated, but the authentication is required for the requested endpoint.
+    """
 
     MYDOJO_LOGIN_MSGCAT = 'info'
     """Default login message category."""

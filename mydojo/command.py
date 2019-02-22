@@ -188,6 +188,84 @@ def users_roledel(login, role):
             traceback.TracebackException(*sys.exc_info())
         )
 
+@user_cli.command('enable')
+@click.argument('login', callback = validate_email)
+def users_enable(login):
+    """Enable given user account."""
+    click.echo("Enabling user account '{}'".format(login))
+    try:
+        item = mydojo.db.SQLDB.session.query(
+            mydojo.db.UserModel
+        ).filter(
+            mydojo.db.UserModel.login == login
+        ).one()
+
+        if not item.enabled:
+            item.enabled = True
+
+            mydojo.db.SQLDB.session.add(item)
+            mydojo.db.SQLDB.session.commit()
+            click.secho(
+                "[OK] User account was successfully enabled",
+                fg = 'green'
+            )
+        else:
+            click.secho(
+                "[OK] User account was already enabled",
+                fg = 'green'
+            )
+
+    except sqlalchemy.orm.exc.NoResultFound:
+        click.secho(
+            "[FAIL] User account '{}' was not found.".format(login),
+            fg = 'red'
+        )
+
+    except Exception:  # pylint: disable=locally-disabled,broad-except
+        mydojo.db.SQLDB.session.rollback()
+        click.echo(
+            traceback.TracebackException(*sys.exc_info())
+        )
+
+@user_cli.command('disable')
+@click.argument('login', callback = validate_email)
+def users_disable(login):
+    """Disable given user account."""
+    click.echo("Disabling user account '{}'".format(login))
+    try:
+        item = mydojo.db.SQLDB.session.query(
+            mydojo.db.UserModel
+        ).filter(
+            mydojo.db.UserModel.login == login
+        ).one()
+
+        if item.enabled:
+            item.enabled = False
+
+            mydojo.db.SQLDB.session.add(item)
+            mydojo.db.SQLDB.session.commit()
+            click.secho(
+                "[OK] User account was successfully disabled",
+                fg = 'green'
+            )
+        else:
+            click.secho(
+                "[OK] User account was already disabled",
+                fg = 'green'
+            )
+
+    except sqlalchemy.orm.exc.NoResultFound:
+        click.secho(
+            "[FAIL] User account '{}' was not found.".format(login),
+            fg = 'red'
+        )
+
+    except Exception:  # pylint: disable=locally-disabled,broad-except
+        mydojo.db.SQLDB.session.rollback()
+        click.echo(
+            traceback.TracebackException(*sys.exc_info())
+        )
+
 @user_cli.command('delete')
 @click.argument('login', callback = validate_email)
 def users_delete(login):

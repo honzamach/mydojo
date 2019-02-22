@@ -26,6 +26,7 @@ import flask
 from flask_babel import gettext
 
 import mydojo.const
+import mydojo.db
 
 
 #-------------------------------------------------------------------------------
@@ -84,3 +85,16 @@ def check_email(form, field):  # pylint: disable=locally-disabled,unused-argumen
             val = str(field.data)
         )
     )
+
+def check_unique_login(form, field):  # pylint: disable=locally-disabled,unused-argument
+    """
+    Callback for validating of uniqueness of user login.
+    """
+    user = mydojo.db.UserModel.query.filter_by(login = field.data).first()
+    if user is not None:
+        raise wtforms.validators.ValidationError(
+            gettext(
+                'Please use different login, the "%(val)s" is already taken.',
+                val = str(field.data)
+            )
+        )

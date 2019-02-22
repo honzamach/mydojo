@@ -14,7 +14,15 @@
                             </legend>
 
                             {{ macros_form.render_form_item_default(form.login) }}
+                            {{ macros_form.render_form_item_default(form.fullname) }}
+                            {{ macros_form.render_form_item_default(form.email) }}
                             {{ macros_form.render_form_item_default(form.password) }}
+                            {{ macros_form.render_form_item_default(form.password2) }}
+
+                            {{ macros_form.render_form_item_default(form.locale) }}
+                            {{ macros_form.render_form_item_default(form.timezone) }}
+
+                            {{ macros_form.render_form_item_default(form.justification) }}
 
                             {{ macros_form.render_form_errors(form.csrf_token.errors) }}
                             {{ form.csrf_token }}
@@ -25,5 +33,4 @@
 
                 </div>
             </div>
-
 {%- endblock content %}

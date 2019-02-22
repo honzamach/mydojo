@@ -1,0 +1,24 @@
+{{ _('Dear user,') | wordwrap }}
+
+{{ _('this email is a confirmation, that you have successfully registered your new user account "%(item_id)s" in %(app_name).', item_id = account.login, app_name = mydojo_appname) | wordwrap }}
+
+{{ _('During the registration process you have provided following information:') | wordwrap }}
+
+    {{ '{:16s}'.format(_('Login:')) }} {{ account.login }}
+    {{ '{:16s}'.format(_('Full name:')) }} {{ account.fullname }}
+    {{ '{:16s}'.format(_('Email:')) }} {{ account.email }}
+    {{ '{:16s}'.format(_('Organization:')) }} {{ account.organization }}
+
+{{ _('You have provided following justification to be given access to the system:') | wordwrap }}
+
+{{ justification | wordwrap(width=75, break_long_words=False) | indent(width=4, indentfirst=True) }}
+
+{{ _('Administrator was informed about registration of a new account. You will receive email confirmation when your account will be activated.') | wordwrap }}
+
+{{ _('After successfull activation you will be able to login and start using the system:') | wordwrap }}
+
+	{{ url_for('auth_pwd.login', _external = True ) }}
+
+{{ _('Have a nice day') | wordwrap }}
+
+-- {{ mydojo_appname }}

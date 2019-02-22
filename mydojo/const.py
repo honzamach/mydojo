@@ -46,6 +46,13 @@ FLASH_FAILURE = 'danger'
 """Class for *failure* flash messages."""
 
 
+FORM_ACTION_SUBMIT = 'submit'
+"""Name of the form *submit* button."""
+
+FORM_ACTION_CANCEL = 'cancel'
+"""Name of the form *cancel* button."""
+
+
 ROLE_USER = 'user'
 """Name of the 'user' role."""
 
@@ -58,7 +65,11 @@ ROLE_ADMIN = 'admin'
 ROLE_ANY = 'any'
 """Name of the 'any' role."""
 
-ROLES = [ROLE_USER, ROLE_DEVELOPER, ROLE_ADMIN]
+ROLES = [
+    ROLE_USER,
+    ROLE_DEVELOPER,
+    ROLE_ADMIN
+]
 """List of valid user roles."""
 
 

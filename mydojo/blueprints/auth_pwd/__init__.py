@@ -24,6 +24,13 @@ Provided endpoints
 
     * *Authentication:* no authentication
     * *Methods:* ``GET``, ``POST``
+
+``/auth_pwd/register``
+    Page providing new user account registration form.
+
+    * *Authentication:* no authentication
+    * *Methods:* ``GET``, ``POST``
+
 """
 
 
@@ -41,7 +48,8 @@ import sqlalchemy
 import flask
 import flask_login
 import flask_principal
-from flask_babel import gettext, lazy_gettext
+import flask_mail
+from flask_babel import gettext, lazy_gettext, force_locale
 
 #
 # Custom modules.
@@ -50,7 +58,8 @@ import mydojo.const
 import mydojo.forms
 from mydojo.base import HTMLMixin, SQLAlchemyMixin, SimpleView, MyDojoBlueprint
 from mydojo.db import UserModel
-from mydojo.blueprints.auth_pwd.forms import LoginForm
+from mydojo.mailer import MAILER
+from mydojo.blueprints.auth_pwd.forms import LoginForm, RegistrationForm
 
 
 BLUEPRINT_NAME = 'auth_pwd'
@@ -59,9 +68,11 @@ BLUEPRINT_NAME = 'auth_pwd'
 
 class LoginView(HTMLMixin, SQLAlchemyMixin, SimpleView):
     """
-    View enabling classical password login.
+    View providing classical password login.
     """
     methods = ['GET', 'POST']
+
+    is_sign_in = True
 
     @classmethod
     def get_view_name(cls):
@@ -201,12 +212,165 @@ class LoginView(HTMLMixin, SQLAlchemyMixin, SimpleView):
         return self.generate_response()
 
 
+class RegisterView(HTMLMixin, SQLAlchemyMixin, SimpleView):
+    """
+    View enabling classical password login.
+    """
+    methods = ['GET', 'POST']
+
+    is_sign_up = True
+
+    @classmethod
+    def get_view_name(cls):
+        """*Implementation* of :py:func:`mydojo.base.BaseView.get_view_name`."""
+        return 'register'
+
+    @classmethod
+    def get_view_icon(cls):
+        """*Implementation* of :py:func:`mydojo.base.BaseView.get_view_icon`."""
+        return 'register'
+
+    @classmethod
+    def get_view_title(cls, **kwargs):
+        """*Implementation* of :py:func:`mydojo.base.BaseView.get_view_title`."""
+        return lazy_gettext('Register new account')
+
+    @classmethod
+    def get_menu_title(cls, **kwargs):
+        """*Implementation* of :py:func:`mydojo.base.BaseView.get_menu_title`."""
+        return lazy_gettext('Register (pwd)')
+
+    @property
+    def dbmodel(self):
+        """*Implementation* of :py:func:`mydojo.base.SQLAlchemyMixin.dbmodel`."""
+        return UserModel
+
+    @property
+    def search_by(self):
+        """*Implementation* of :py:func:`mydojo.base.SQLAlchemyMixin.search_by`."""
+        return self.dbmodel.login
+
+    def dispatch_request(self):
+        """
+        Mandatory interface required by the :py:func:`flask.views.View.dispatch_request`.
+        Will be called by the *Flask* framework to service the request.
+        """
+
+        form = RegistrationForm(
+            choices_locales = list(flask.current_app.config['MYDOJO_LOCALES'].items())
+        )
+
+        if form.validate_on_submit():
+            form_data = form.data
+
+            if form_data[mydojo.const.FORM_ACTION_CANCEL]:
+                self.flash(
+                    gettext('Account registration canceled.'),
+                    mydojo.const.FLASH_INFO
+                )
+                return self.redirect(
+                    default_url = flask.url_for(
+                        flask.current_app.config['MYDOJO_ENDPOINT_HOME']
+                    )
+                )
+
+            if form_data[mydojo.const.FORM_ACTION_SUBMIT]:
+                try:
+                    # Populate the user object from form data and make sure the
+                    # account has default 'user' role and is disabled by default.
+                    item = UserModel()
+                    form.populate_obj(item)
+                    item.roles = [mydojo.const.ROLE_USER]
+                    item.enabled = False
+
+                    self.dbsession.add(item)
+                    self.dbsession.commit()
+
+                    # Send information about new account registration to system
+                    # admins. Use default locale for email content translations.
+                    mail_locale = flask.current_app.config['BABEL_DEFAULT_LOCALE']
+                    with force_locale(mail_locale):
+                        msg = flask_mail.Message(
+                            gettext(
+                                "%(prefix)s Account registration - %(item_id)s",
+                                prefix  = flask.current_app.config['MAIL_SUBJECT_PREFIX'],
+                                item_id = item.login
+                            ),
+                            recipients = flask.current_app.config['MYDOJO_ADMINS']
+                        )
+                        msg.body = flask.render_template(
+                            'auth_pwd/email_registration_admins.txt',
+                            account = item,
+                            justification = form_data['justification']
+                        )
+                        MAILER.send(msg)
+
+                    # Send information about new account registration to the user.
+                    # Use user`s preferred locale for email content translations.
+                    mail_locale = item.locale
+                    if not mail_locale:
+                        mail_locale = flask.current_app.config['BABEL_DEFAULT_LOCALE']
+                    with force_locale(mail_locale):
+                        msg = flask_mail.Message(
+                            gettext(
+                                "%(prefix)s Account registration - %(item_id)s",
+                                prefix  = flask.current_app.config['MAIL_SUBJECT_PREFIX'],
+                                item_id = item.login
+                            ),
+                            recipients = [item.email]
+                        )
+                        msg.body = flask.render_template(
+                            'auth_pwd/email_registration_user.txt',
+                            account = item,
+                            justification = form_data['justification']
+                        )
+                        MAILER.send(msg)
+
+                    self.flash(
+                        flask.Markup(gettext(
+                            'User account <strong>%(login)s (%(name)s)</strong> was successfully registered.',
+                            login = item.login,
+                            name = item.fullname
+                        )),
+                        mydojo.const.FLASH_SUCCESS
+                    )
+                    self.logger.info(
+                        "New user account '{}' was successfully registered with 'auth_pwd'.".format(
+                            item.login
+                        )
+                    )
+                    return self.redirect(
+                        default_url = flask.url_for(
+                            flask.current_app.config['MYDOJO_ENDPOINT_HOME']
+                        )
+                    )
+
+                except Exception:  # pylint: disable=locally-disabled,broad-except
+                    self.flash(
+                        gettext('Unable to register new user account.'),
+                        mydojo.const.FLASH_FAILURE
+                    )
+                    flask.current_app.log_exception_with_label(
+                        traceback.TracebackException(*sys.exc_info()),
+                        'Unable to register new user account.',
+                    )
+
+        self.response_context.update(
+            form_url = flask.url_for('{}.{}'.format(
+                self.module_name,
+                self.get_view_name()
+            )),
+            form = form
+        )
+        return self.generate_response()
+
+
 #-------------------------------------------------------------------------------
 
 
 class PwdAuthBlueprint(MyDojoBlueprint):
     """
-    Pluggable module - special developer authentication (*auth_pwd*).
+    Pluggable module - classical password authentication (*auth_pwd*).
     """
 
 #-------------------------------------------------------------------------------
@@ -225,6 +389,7 @@ def get_blueprint():
         url_prefix = '/{}'.format(BLUEPRINT_NAME)
     )
 
-    hbp.register_view_class(LoginView, '/login')
+    hbp.register_view_class(LoginView,    '/login')
+    hbp.register_view_class(RegisterView, '/register')
 
     return hbp
