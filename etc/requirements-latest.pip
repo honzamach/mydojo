@@ -12,6 +12,7 @@ flask-babel
 flask-debugtoolbar
 flask-jsglue
 flask-login
+flask-mail
 flask-migrate
 flask-principal
 flask-sqlalchemy

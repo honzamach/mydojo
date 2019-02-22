@@ -39,6 +39,11 @@ PYBABEL     = pybabel
 
 CURRENT_DIR = $(shell pwd)
 
+DEV_SERVER      = localhost
+DEV_PORT        = 5050
+DEV_MAIL_SERVER = localhost
+DEV_MAIL_PORT   = 8025
+
 #
 # Include common makefile configurations.
 #
@@ -94,7 +99,8 @@ help:
 	@echo "  * $(GREEN)deps-webui-upgrade$(NC): upgrade web interface dependencies"
 	@echo "  * $(GREEN)deps-postgresql$(NC): configure required PostgreSQL user accounts and databases"
 	@echo ""
-	@echo "  * $(GREEN)run-webui-dev$(NC): run development web server with development configuration"
+	@echo "  * $(GREEN)run-webui-dev$(NC): run development web server with development configuration on  on $(DEV_SERVER):$(DEV_PORT)"
+	@echo "  * $(GREEN)run-mailserver-dev$(NC): run development mail server on $(DEV_MAIL_SERVER):$(DEV_MAIL_PORT)"
 	@echo ""
 	@echo "  * $(GREEN)clean-pycs$(NC): clean up Python compiled files"
 	@echo "  * $(GREEN)clean-build-docs$(NC): clean up documentation build directories"
@@ -300,9 +306,12 @@ deps-postgresql: FORCE
 
 
 run-webui-dev:
-	@echo "\n$(GREEN)*** Running development web server with development configuration ***$(NC)\n"
-	FLASK_ENV=development FLASK_CONFIG=development FLASK_CONFIG_FILE=$(shell realpath ./$(PROJECT_ID).local.conf) $(PROJECT_ID)-cli run
+	@echo "\n$(GREEN)*** Running development web server with development configuration on $(DEV_SERVER):$(DEV_PORT) ***$(NC)\n"
+	FLASK_ENV=development FLASK_CONFIG=development FLASK_CONFIG_FILE=$(shell realpath ./$(PROJECT_ID).local.conf) $(PROJECT_ID)-cli run --host $(DEV_SERVER) --port $(DEV_PORT)
 
+run-mailserver-dev:
+	@echo "\n$(GREEN)*** Running development mail server on $(DEV_MAIL_SERVER):$(DEV_MAIL_PORT) ***$(NC)\n"
+	$(PYTHON) -m smtpd -n -c DebuggingServer $(DEV_MAIL_SERVER):$(DEV_MAIL_PORT)
 
 #-------------------------------------------------------------------------------
 

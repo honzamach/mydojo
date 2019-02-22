@@ -44,6 +44,7 @@ import mydojo.base
 import mydojo.const
 import mydojo.config
 import mydojo.log
+import mydojo.mailer
 import mydojo.db
 import mydojo.auth
 import mydojo.forms
@@ -91,6 +92,7 @@ def create_app_full(
         app.config.from_envvar(config_env)
 
     _setup_app_logging(app)
+    _setup_app_mailer(app)
     _setup_app_core(app)
     _setup_app_db(app)
     _setup_app_auth(app)
@@ -136,6 +138,19 @@ def _setup_app_logging(app):
     mydojo.log.setup_logging_file(app)
     if not app.debug:
         mydojo.log.setup_logging_email(app)
+
+    return app
+
+
+def _setup_app_mailer(app):
+    """
+    Setup mailer service for MyDojo application.
+
+    :param mydojo.base.MyDojoApp app: MyDojo application to be modified.
+    :return: Modified MyDojo application
+    :rtype: mydojo.base.MyDojoApp
+    """
+    mydojo.mailer.MAILER.init_app(app)
 
     return app
 

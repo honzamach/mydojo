@@ -99,7 +99,7 @@ def setup_logging_email(app):
 
     mail_handler = SMTPHandler(
         mailhost = (app.config['MAIL_SERVER'], app.config['MAIL_PORT']),
-        fromaddr = app.config['MAIL_SENDER'],
+        fromaddr = app.config['MAIL_DEFAULT_SENDER'],
         toaddrs = app.config['MYDOJO_ADMINS'],
         subject = app.config['MAIL_SUBJECT_PREFIX'] + ' Application Error',
         credentials = credentials,

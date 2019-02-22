@@ -45,9 +45,13 @@ from flask_babel import lazy_gettext
 import mydojo.const
 
 
-class Config:  # pylint: disable=locally-disabled,too-few-public-methods
+APP_NAME = 'MyDojo'
+APP_ID   = 'mydojo'
+
+
+class BaseConfig:  # pylint: disable=locally-disabled,too-few-public-methods
     """
-    Base class for default MyDojo application configurations. You are free to
+    Base class for default configurations of MyDojo application. You are free to
     extend and customize contents of this class to provide better default values
     for your particular environment.
 
@@ -75,13 +79,15 @@ class Config:  # pylint: disable=locally-disabled,too-few-public-methods
     # WTForms configurations.
     WTF_CSRF_ENABLED = True
 
-    # Mail server settings for logging framework.
+    #
+    # Flask-Mail configurations.
+    #
     MAIL_SERVER         = 'localhost'
     MAIL_PORT           = 25
     MAIL_USERNAME       = None
     MAIL_PASSWORD       = None
-    MAIL_SENDER         = 'mydojo@{}'.format(socket.getfqdn())
-    MAIL_SUBJECT_PREFIX = '[MyDojo]'
+    MAIL_DEFAULT_SENDER = '{}@{}'.format(APP_ID, socket.getfqdn())
+    MAIL_SUBJECT_PREFIX = '[{}]'.format(APP_NAME)
 
     # Babel configurations for application localization.
     BABEL_DEFAULT_LOCALE   = mydojo.const.MYDOJO_DEFAULT_LOCALE
@@ -189,16 +195,16 @@ class Config:  # pylint: disable=locally-disabled,too-few-public-methods
     """List of system administrator emails."""
 
 
-class ProductionConfig(Config):  # pylint: disable=locally-disabled,too-few-public-methods
+class ProductionConfig(BaseConfig):  # pylint: disable=locally-disabled,too-few-public-methods
     """
-    Class containing *production* MyDojo applications` configurations.
+    Class containing application configurations for *production* environment.
     """
     pass
 
 
-class DevelopmentConfig(Config):  # pylint: disable=locally-disabled,too-few-public-methods
+class DevelopmentConfig(BaseConfig):  # pylint: disable=locally-disabled,too-few-public-methods
     """
-    Class containing *development* MyDojo applications` configurations.
+    Class containing application configurations for *development* environment.
     """
 
     #---------------------------------------------------------------------------
