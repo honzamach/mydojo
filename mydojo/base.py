@@ -90,6 +90,8 @@ class MyDojoApp(flask.Flask):
         self.navbar_main = mydojo.menu.Menu()
 
         self.view_classes = {}
+        self.sign_ins     = {}
+        self.sign_ups     = {}
         self.resources    = {}
 
     @flask.app.setupmethod
@@ -135,6 +137,8 @@ class MyDojoApp(flask.Flask):
                 blueprint.register_app(self)
 
             self.view_classes.update(blueprint.view_classes)
+            self.sign_ins.update(blueprint.sign_ins)
+            self.sign_ups.update(blueprint.sign_ups)
 
     def register_blueprints(self):
         """
@@ -253,6 +257,8 @@ class MyDojoBlueprint(flask.Blueprint):
         super().__init__(name, import_name, **kwargs)
 
         self.view_classes = {}
+        self.sign_ins     = {}
+        self.sign_ups     = {}
 
     def register_app(self, app):  # pylint: disable=locally-disabled,no-self-use,unused-argument
         """
@@ -293,6 +299,12 @@ class MyDojoBlueprint(flask.Blueprint):
         self.view_classes[view_class.get_view_endpoint()] = view_class
 
         self.add_url_rule(route_spec, view_func = view_func)
+
+        # Register SIGN IN and SIGN UP views to enable further special handling.
+        if hasattr(view_class, 'is_sign_in') and view_class.is_sign_in:
+            self.sign_ins[view_class.get_view_endpoint()] = view_class
+        if hasattr(view_class, 'is_sign_up') and view_class.is_sign_up:
+            self.sign_ups[view_class.get_view_endpoint()] = view_class
 
 
 #-------------------------------------------------------------------------------
