@@ -11,9 +11,9 @@
 """
 This module contains core application features for MyDojo.
 
-The most important feture of this module is the :py:func:`mydojo.app.create_app`
-factory method, that is responsible for bootstrapping the whole application (see
-its documentation for more details).
+The most important fetures of this module are the :py:func:`mydojo.app.create_app`
+and :py:func:`mydojo.app.create_app_full` factory methods, that are responsible
+for bootstrapping the whole application (see their documentation for more details).
 """
 
 
@@ -106,12 +106,9 @@ def create_app_full(
 
 def create_app():
     """
-    Factory function for building MyDojo application. This function takes number of
-    optional arguments, that can be used to create a very customized instance of
-    MyDojo application. This can be very usefull when extending applications`
-    capabilities or for purposes of testing. Each of these arguments has default
-    value for the most common application setup, so for disabling it entirely it
-    is necessary to provide ``None`` as a value.
+    Factory function for building MyDojo application. This function does not take
+    any arguments, any necessary customizations must be done using environment
+    variables.
 
     :return: MyDojo application
     :rtype: mydojo.base.MyDojoApp

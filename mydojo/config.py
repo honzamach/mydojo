@@ -10,12 +10,12 @@
 
 """
 This module contains default configurations for MyDojo application. One of the
-classes defined in this module may be passed as argument to :py:func:`mydojo.app.create_app`
+classes defined in this module may be passed as argument to :py:func:`mydojo.app.create_app_full`
 factory function to bootstrap MyDojo default configurations. These values may be
 then optionally overwritten by external configuration file and/or additional
 configuration file defined indirrectly via environment variable. Please refer to
-the documentation of :py:func:`mydojo.app.create_app` factory function for more
-details on this process.
+the documentation of :py:func:`mydojo.app.create_app_full` factory function for
+more details on this process.
 
 There are following predefined configuration classess available:
 
@@ -28,6 +28,14 @@ There are following predefined configuration classess available:
 :py:class:`mydojo.config.TestingConfig`
     Default configuration suite for testing environments.
 
+There is also following constant structure containing mapping of simple configuration
+names to configuration classess:
+
+:py:const:`CONFIG_MAP`
+
+It is used from inside of :py:func:`mydojo.app.create_app` factory method to pick
+and apply correct configuration class to application. Please refer to the documentation
+of :py:func:`mydojo.app.create_app` factory function for more details on this process.
 """
 
 
@@ -56,27 +64,26 @@ class BaseConfig:  # pylint: disable=locally-disabled,too-few-public-methods
     for your particular environment.
 
     The configuration keys must be a valid Flask configuration and so they must
-    be written in UPPERCASE to be correctly recognized
+    be written in UPPERCASE to be correctly recognized.
     """
 
     #---------------------------------------------------------------------------
-
-    #
     # Flask internal configurations. Please refer to Flask documentation for
-    # more information about each confiuration key.
-    #
+    # more information about each configuration key.
+    #---------------------------------------------------------------------------
 
     DEBUG      = False
     TESTING    = False
     SECRET_KEY = 'default-secret-key'
 
     #---------------------------------------------------------------------------
+    # Flask extension configurations. Please refer to the documentation of that
+    # particular Flask extension for more details.
+    #---------------------------------------------------------------------------
 
     #
-    # Flask extension configurations.
+    # Flask-WTF configurations.
     #
-
-    # WTForms configurations.
     WTF_CSRF_ENABLED = True
 
     #
@@ -89,22 +96,24 @@ class BaseConfig:  # pylint: disable=locally-disabled,too-few-public-methods
     MAIL_DEFAULT_SENDER = '{}@{}'.format(APP_ID, socket.getfqdn())
     MAIL_SUBJECT_PREFIX = '[{}]'.format(APP_NAME)
 
-    # Babel configurations for application localization.
+    #
+    # Flask-Babel configurations.
+    #
     BABEL_DEFAULT_LOCALE   = mydojo.const.MYDOJO_DEFAULT_LOCALE
     BABEL_DEFAULT_TIMEZONE = mydojo.const.MYDOJO_DEFAULT_TIMEZONE
 
-    # SQLAlchemy configurations.
-    SQLALCHEMY_DATABASE_URI        = 'postgresql://mydojo:mydojo@localhost/mydojo'
+    #
+    # Flask-SQLAlchemy configurations.
+    #
+    SQLALCHEMY_DATABASE_URI        = 'postgresql://{ident}:{ident}@localhost/{ident}'.format(ident = APP_ID)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     #---------------------------------------------------------------------------
-
-    #
-    # MyDojo custom configurations.
-    #
+    # Custom application configurations.
+    #---------------------------------------------------------------------------
 
     ROLES = mydojo.const.ROLES
-    """List of all user roles supported by the MyDojo application."""
+    """List of all valid user roles supported by the application."""
 
     MYDOJO_LOGIN_VIEW = 'auth_pwd.login'
     """
@@ -113,7 +122,7 @@ class BaseConfig:  # pylint: disable=locally-disabled,too-few-public-methods
     """
 
     MYDOJO_LOGIN_MSGCAT = 'info'
-    """Default login message category."""
+    """Default message category for messages related to user authentication."""
 
     MYDOJO_ENDPOINT_HOME = 'home.index'
     """Homepage endpoint."""
@@ -128,7 +137,7 @@ class BaseConfig:  # pylint: disable=locally-disabled,too-few-public-methods
         ('en', 'English'),
         ('cs', 'Česky')
     ])
-    """List of all languages (locales) supported by the MyDojo application."""
+    """List of all languages (locales) supported by the application."""
 
     MYDOJO_MODULES = [
         'mydojo.blueprints.auth_pwd',
@@ -202,7 +211,6 @@ class ProductionConfig(BaseConfig):  # pylint: disable=locally-disabled,too-few-
     """
     Class containing application configurations for *production* environment.
     """
-    pass
 
 
 class DevelopmentConfig(BaseConfig):  # pylint: disable=locally-disabled,too-few-public-methods
@@ -211,20 +219,16 @@ class DevelopmentConfig(BaseConfig):  # pylint: disable=locally-disabled,too-few
     """
 
     #---------------------------------------------------------------------------
-
-    #
     # Flask internal configurations. Please refer to Flask documentation for
-    # more information about each confiuration key.
-    #
-
-    DEBUG = True
-    """Overwritten default value from :py:const:`mydojo.config.Config.DEBUG`"""
-
+    # more information about each configuration key.
     #---------------------------------------------------------------------------
 
-    #
-    # MyDojo custom configurations.
-    #
+    DEBUG = True
+    """Overwrite default :py:const:`mydojo.config.Config.DEBUG`."""
+
+    #---------------------------------------------------------------------------
+    # Custom application configurations.
+    #---------------------------------------------------------------------------
 
     MYDOJO_MODULES = [
         'mydojo.blueprints.auth_dev',
@@ -234,32 +238,30 @@ class DevelopmentConfig(BaseConfig):  # pylint: disable=locally-disabled,too-few
         'mydojo.blueprints.lab',
         'mydojo.blueprints.devtools'
     ]
-    """Overwritten default value from :py:const:`mydojo.config.Config.MYDOJO_MODULES`"""
+    """Overwrite default :py:const:`mydojo.config.Config.MYDOJO_MODULES`."""
 
     MYDOJO_LOG_DEFAULT_LEVEL = 'debug'
-    """Overwritten default value from :py:const:`mydojo.config.Config.MYDOJO_LOG_DEFAULT_LEVEL`"""
+    """Overwrite default :py:const:`mydojo.config.Config.MYDOJO_LOG_DEFAULT_LEVEL`."""
 
     MYDOJO_LOG_FILE = '/var/tmp/mydojo-dev.py.log'
-    """Overwritten default value from :py:const:`mydojo.config.Config.MYDOJO_LOG_FILE`"""
+    """Overwrite default :py:const:`mydojo.config.Config.MYDOJO_LOG_FILE`."""
 
     MYDOJO_LOG_FILE_LEVEL = 'debug'
-    """Overwritten default value from :py:const:`mydojo.config.Config.MYDOJO_LOG_FILE_LEVEL`"""
+    """Overwrite default :py:const:`mydojo.config.Config.MYDOJO_LOG_FILE_LEVEL`."""
 
 
-class TestingConfig(Config):  # pylint: disable=locally-disabled,too-few-public-methods
+class TestingConfig(BaseConfig):  # pylint: disable=locally-disabled,too-few-public-methods
     """
     Class containing *testing* Mydojo applications` configurations.
     """
 
     #---------------------------------------------------------------------------
-
-    #
     # Flask internal configurations. Please refer to Flask documentation for
-    # more information about each confiuration key.
-    #
+    # more information about each configuration key.
+    #---------------------------------------------------------------------------
 
     TESTING = True
-    """Overwritten default value from :py:const:`mydojo.config.Config.TESTING`"""
+    """Overwrite default :py:const:`mydojo.config.Config.TESTING`."""
 
 
 CONFIG_MAP = {
@@ -268,3 +270,4 @@ CONFIG_MAP = {
     'testing':     TestingConfig,
     'default':     ProductionConfig
 }
+"""Configuration map for easy mapping of configuration aliases to config objects."""

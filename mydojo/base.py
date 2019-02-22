@@ -64,10 +64,8 @@ from mydojo.forms import get_redirect_target
 
 class MyDojoAppException(Exception):
     """
-    Custom class for MyDojo application exceptions.
+    Custom class for :py:class:`mydojo.base.MyDojoApp` application exceptions.
     """
-    pass
-
 
 class MyDojoApp(flask.Flask):
     """
@@ -860,7 +858,6 @@ class RenderableView(BaseView):  # pylint: disable=locally-disabled,abstract-met
 
         :param kwargs: Custom additional arguments.
         """
-        pass
 
     def generate_response(self):
         """

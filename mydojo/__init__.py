@@ -21,7 +21,7 @@ import click
 from flask.cli import FlaskGroup
 
 
-# Expose main application factory to current namespace
+# Expose main application factories to current namespace
 from .app import create_app, create_app_full
 
 
