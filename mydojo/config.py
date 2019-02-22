@@ -130,6 +130,9 @@ class Config:  # pylint: disable=locally-disabled,too-few-public-methods
     ]
     """List of requested application blueprints to be loaded during setup."""
 
+    MYDOJO_DISABLED_ENDPOINTS = []
+    """List of application-wide disabled endpoints."""
+
     MYDOJO_LOG_DEFAULT_LEVEL = 'info'
     """Default logging level, case insensitive. One of the values ``DEBUG``, ``INFO``, ``WARNING``, ``ERROR``, ``CRITICAL``."""
 

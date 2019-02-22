@@ -48,6 +48,7 @@ import sqlalchemy
 import werkzeug.routing
 import werkzeug.utils
 import flask
+import flask.app
 import flask.views
 import flask_login
 
@@ -90,6 +91,24 @@ class MyDojoApp(flask.Flask):
 
         self.view_classes = {}
         self.resources    = {}
+
+    @flask.app.setupmethod
+    def add_url_rule(self, rule, endpoint = None, view_func = None, provide_automatic_options = None, **options):
+        """
+        Reimplementation of :py:func:`flask.Flask.add_url_rule` method. This method
+        is capable of disabling selected application endpoints. Keep in mind, that
+        some URL rules (like application global 'static' endpoint) are created during
+        the :py:func:`flask.app.Flask.__init__` method and cannot be disabled,
+        because at that point the configuration of the application is not yet loaded.
+        """
+        if self.config.get('DISABLED_ENDPOINTS', None) and self.config['DISABLED_ENDPOINTS'] and endpoint:
+            if endpoint in self.config['DISABLED_ENDPOINTS']:
+                self.logger.warning(
+                    "Application endpoint '%s' is disabled by configuration.",
+                    endpoint
+                )
+                return
+        super().add_url_rule(rule, endpoint, view_func, provide_automatic_options, **options)
 
     def register_blueprint(self, blueprint, **options):
         """
