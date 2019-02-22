@@ -19,6 +19,7 @@ __author__ = "Honza Mach <honza.mach.ml@gmail.com>"
 import re
 import sys
 import traceback
+import functools
 import sqlalchemy
 
 import click
@@ -28,7 +29,30 @@ import mydojo.const
 import mydojo.db
 
 
+def account_exists(func):
+    """
+    Decorator: Catch SQLAlchemy exceptions for non existing user accounts.
+    """
+    @functools.wraps(func)
+    def wrapper_account_exists(login, *args, **kwargs):
+        try:
+            return func(login, *args, **kwargs)
+        except sqlalchemy.orm.exc.NoResultFound:
+            click.secho(
+                "[FAIL] User account '{}' was not found.".format(login),
+                fg = 'red'
+            )
+
+        except Exception:  # pylint: disable=locally-disabled,broad-except
+            mydojo.db.SQLDB.session.rollback()
+            click.echo(
+                traceback.TracebackException(*sys.exc_info())
+            )
+    return wrapper_account_exists
+
+
 def validate_email(ctx, param, value):
+    """Validate ``login/email`` command line parameter."""
     if value:
         if mydojo.const.CRE_EMAIL.match(value):
             return value
@@ -37,6 +61,7 @@ def validate_email(ctx, param, value):
         )
 
 def validate_roles(ctx, param, value):
+    """Validate ``role`` command line parameter."""
     if value:
         for val in value:
             if val not in mydojo.const.ROLES:
@@ -112,190 +137,130 @@ def users_create(login, fullname, email, password, enabled, role):
 @user_cli.command('roleadd')
 @click.argument('login', callback = validate_email)
 @click.argument('role', callback = validate_roles, nargs = -1)
+@account_exists
 def users_roleadd(login, role):
     """Add role(s) to given user account."""
     if not role:
         return
     click.echo("Adding roles '{}' to user account '{}'".format(','.join(role), login))
-    try:
-        item = mydojo.db.SQLDB.session.query(
-            mydojo.db.UserModel
-        ).filter(
-            mydojo.db.UserModel.login == login
-        ).one()
+    item = mydojo.db.SQLDB.session.query(
+        mydojo.db.UserModel
+    ).filter(
+        mydojo.db.UserModel.login == login
+    ).one()
 
-        current_roles = set(item.roles)
-        for i in role:
-            current_roles.add(i)
-        item.roles = list(current_roles)
+    current_roles = set(item.roles)
+    for i in role:
+        current_roles.add(i)
+    item.roles = list(current_roles)
 
-        mydojo.db.SQLDB.session.add(item)
-        mydojo.db.SQLDB.session.commit()
-        click.secho(
-            "[OK] User account was successfully updated",
-            fg = 'green'
-        )
-
-    except sqlalchemy.orm.exc.NoResultFound:
-        click.secho(
-            "[FAIL] User account '{}' was not found.".format(login),
-            fg = 'red'
-        )
-
-    except Exception:  # pylint: disable=locally-disabled,broad-except
-        mydojo.db.SQLDB.session.rollback()
-        click.echo(
-            traceback.TracebackException(*sys.exc_info())
-        )
+    mydojo.db.SQLDB.session.add(item)
+    mydojo.db.SQLDB.session.commit()
+    click.secho(
+        "[OK] User account was successfully updated",
+        fg = 'green'
+    )
 
 @user_cli.command('roledel')
 @click.argument('login', callback = validate_email)
 @click.argument('role', callback = validate_roles, nargs = -1)
+@account_exists
 def users_roledel(login, role):
     """Delete role(s) to given user account."""
     click.echo("Deleting roles '{}' from user account '{}'".format(','.join(role), login))
-    try:
-        item = mydojo.db.SQLDB.session.query(
-            mydojo.db.UserModel
-        ).filter(
-            mydojo.db.UserModel.login == login
-        ).one()
+    item = mydojo.db.SQLDB.session.query(
+        mydojo.db.UserModel
+    ).filter(
+        mydojo.db.UserModel.login == login
+    ).one()
 
-        current_roles = set(item.roles)
-        for i in role:
-            try:
-                current_roles.remove(i)
-            except KeyError:
-                pass
-        item.roles = list(current_roles)
+    current_roles = set(item.roles)
+    for i in role:
+        try:
+            current_roles.remove(i)
+        except KeyError:
+            pass
+    item.roles = list(current_roles)
+
+    mydojo.db.SQLDB.session.add(item)
+    mydojo.db.SQLDB.session.commit()
+    click.secho(
+        "[OK] User account was successfully updated",
+        fg = 'green'
+    )
+
+@user_cli.command('enable')
+@click.argument('login', callback = validate_email)
+@account_exists
+def users_enable(login):
+    """Enable given user account."""
+    click.echo("Enabling user account '{}'".format(login))
+    item = mydojo.db.SQLDB.session.query(
+        mydojo.db.UserModel
+    ).filter(
+        mydojo.db.UserModel.login == login
+    ).one()
+
+    if not item.enabled:
+        item.enabled = True
 
         mydojo.db.SQLDB.session.add(item)
         mydojo.db.SQLDB.session.commit()
         click.secho(
-            "[OK] User account was successfully updated",
+            "[OK] User account was successfully enabled",
             fg = 'green'
         )
-
-    except sqlalchemy.orm.exc.NoResultFound:
+    else:
         click.secho(
-            "[FAIL] User account '{}' was not found.".format(login),
-            fg = 'red'
-        )
-
-    except Exception:  # pylint: disable=locally-disabled,broad-except
-        mydojo.db.SQLDB.session.rollback()
-        click.echo(
-            traceback.TracebackException(*sys.exc_info())
-        )
-
-@user_cli.command('enable')
-@click.argument('login', callback = validate_email)
-def users_enable(login):
-    """Enable given user account."""
-    click.echo("Enabling user account '{}'".format(login))
-    try:
-        item = mydojo.db.SQLDB.session.query(
-            mydojo.db.UserModel
-        ).filter(
-            mydojo.db.UserModel.login == login
-        ).one()
-
-        if not item.enabled:
-            item.enabled = True
-
-            mydojo.db.SQLDB.session.add(item)
-            mydojo.db.SQLDB.session.commit()
-            click.secho(
-                "[OK] User account was successfully enabled",
-                fg = 'green'
-            )
-        else:
-            click.secho(
-                "[OK] User account was already enabled",
-                fg = 'green'
-            )
-
-    except sqlalchemy.orm.exc.NoResultFound:
-        click.secho(
-            "[FAIL] User account '{}' was not found.".format(login),
-            fg = 'red'
-        )
-
-    except Exception:  # pylint: disable=locally-disabled,broad-except
-        mydojo.db.SQLDB.session.rollback()
-        click.echo(
-            traceback.TracebackException(*sys.exc_info())
+            "[OK] User account was already enabled",
+            fg = 'green'
         )
 
 @user_cli.command('disable')
 @click.argument('login', callback = validate_email)
+@account_exists
 def users_disable(login):
     """Disable given user account."""
     click.echo("Disabling user account '{}'".format(login))
-    try:
-        item = mydojo.db.SQLDB.session.query(
-            mydojo.db.UserModel
-        ).filter(
-            mydojo.db.UserModel.login == login
-        ).one()
+    item = mydojo.db.SQLDB.session.query(
+        mydojo.db.UserModel
+    ).filter(
+        mydojo.db.UserModel.login == login
+    ).one()
 
-        if item.enabled:
-            item.enabled = False
+    if item.enabled:
+        item.enabled = False
 
-            mydojo.db.SQLDB.session.add(item)
-            mydojo.db.SQLDB.session.commit()
-            click.secho(
-                "[OK] User account was successfully disabled",
-                fg = 'green'
-            )
-        else:
-            click.secho(
-                "[OK] User account was already disabled",
-                fg = 'green'
-            )
-
-    except sqlalchemy.orm.exc.NoResultFound:
+        mydojo.db.SQLDB.session.add(item)
+        mydojo.db.SQLDB.session.commit()
         click.secho(
-            "[FAIL] User account '{}' was not found.".format(login),
-            fg = 'red'
+            "[OK] User account was successfully disabled",
+            fg = 'green'
         )
-
-    except Exception:  # pylint: disable=locally-disabled,broad-except
-        mydojo.db.SQLDB.session.rollback()
-        click.echo(
-            traceback.TracebackException(*sys.exc_info())
+    else:
+        click.secho(
+            "[OK] User account was already disabled",
+            fg = 'green'
         )
 
 @user_cli.command('delete')
 @click.argument('login', callback = validate_email)
+@account_exists
 def users_delete(login):
     """Delete existing user account."""
     click.echo("Deleting user account '{}'".format(login))
-    try:
-        item = mydojo.db.SQLDB.session.query(
-            mydojo.db.UserModel
-        ).filter(
-            mydojo.db.UserModel.login == login
-        ).one()
+    item = mydojo.db.SQLDB.session.query(
+        mydojo.db.UserModel
+    ).filter(
+        mydojo.db.UserModel.login == login
+    ).one()
 
-        mydojo.db.SQLDB.session.delete(item)
-        mydojo.db.SQLDB.session.commit()
-        click.secho(
-            "[OK] User account was successfully deleted",
-            fg = 'green'
-        )
-
-    except sqlalchemy.orm.exc.NoResultFound:
-        click.secho(
-            "[FAIL] User account '{}' was not found.".format(login),
-            fg = 'red'
-        )
-
-    except Exception:  # pylint: disable=locally-disabled,broad-except
-        mydojo.db.SQLDB.session.rollback()
-        click.echo(
-            traceback.TracebackException(*sys.exc_info())
-        )
+    mydojo.db.SQLDB.session.delete(item)
+    mydojo.db.SQLDB.session.commit()
+    click.secho(
+        "[OK] User account was successfully deleted",
+        fg = 'green'
+    )
 
 @user_cli.command('list')
 def users_list():
