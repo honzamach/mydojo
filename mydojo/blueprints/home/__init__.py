@@ -89,14 +89,6 @@ class HomeBlueprint(MyDojoBlueprint):
 
         :param mydojo.base.MyDojoApp app: Flask application to be customized.
         """
-        app.navbar_main.add_entry(
-            'view',
-            'home',
-            position = 1,
-            view = IndexView,
-            hidelegend = True,
-            resptitle = True
-        )
 
 
 #-------------------------------------------------------------------------------
