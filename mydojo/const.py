@@ -135,6 +135,7 @@ FA_ICONS = {
     'module-auth-env': '<i class="fas fa-fw fa-key"></i>',
     'module-home':     '<i class="fas fa-fw fa-home"></i>',
     'module-design':   '<i class="fas fa-fw fa-palette"></i>',
+    'module-gadgets':  '<i class="fas fa-fw fa-tools"></i>',
     'module-lab':      '<i class="fas fa-fw fa-flask"></i>',
     'module-devtools': '<i class="fas fa-fw fa-bug"></i>',
 

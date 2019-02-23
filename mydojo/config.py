@@ -143,6 +143,7 @@ class BaseConfig:  # pylint: disable=locally-disabled,too-few-public-methods
         'mydojo.blueprints.auth_pwd',
         'mydojo.blueprints.design',
         'mydojo.blueprints.home',
+        'mydojo.blueprints.gadgets',
         'mydojo.blueprints.lab',
         'mydojo.blueprints.devtools'
     ]
@@ -235,6 +236,7 @@ class DevelopmentConfig(BaseConfig):  # pylint: disable=locally-disabled,too-few
         'mydojo.blueprints.auth_pwd',
         'mydojo.blueprints.design',
         'mydojo.blueprints.home',
+        'mydojo.blueprints.gadgets',
         'mydojo.blueprints.lab',
         'mydojo.blueprints.devtools'
     ]
