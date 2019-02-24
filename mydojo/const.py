@@ -73,9 +73,6 @@ ROLES = [
 """List of valid user roles."""
 
 
-CFGKEY_MODULES_LOADED = 'MYDOJO_MODULES_LOADED'
-"""Configuration key name: Registry of all successfully loaded blueprints."""
-
 CFGKEY_MODULES_REQUESTED = 'MYDOJO_MODULES'
 """Configuration key name: List of all requested blueprints."""
 

@@ -234,11 +234,17 @@ def _setup_app_core(app):
         """
         Register additional helpers into Jinja2 global template namespace.
         """
+        def get_modules_dict():
+            """
+            Return dictionary of all registered application pluggable modules.
+            """
+            return flask.current_app.blueprints
+
         def get_endpoints_dict():
             """
             Return dictionary of all registered application view endpoints.
             """
-            return flask.current_app.view_classes
+            return flask.current_app.view_functions
 
         def get_endpoint_class(endpoint):
             """
@@ -257,7 +263,7 @@ def _setup_app_core(app):
             :return: ``True`` in case endpoint exists, ``False`` otherwise.
             :rtype: bool
             """
-            return endpoint in app.view_classes
+            return app.has_endpoint(endpoint)
 
         def get_icon(icon_name, default_icon = 'missing-icon'):
             """
@@ -347,12 +353,13 @@ def _setup_app_core(app):
             )
 
         return dict(
+            get_modules_dict      = get_modules_dict,
             get_endpoints_dict    = get_endpoints_dict,
             get_endpoint_class    = get_endpoint_class,
             check_endpoint_exists = check_endpoint_exists,
 
-            get_icon          = get_icon,
-            get_country_flag  = get_country_flag,
+            get_icon         = get_icon,
+            get_country_flag = get_country_flag,
 
             get_timedelta      = get_timedelta,
             get_datetime_utc   = get_datetime_utc,

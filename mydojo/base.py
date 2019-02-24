@@ -87,7 +87,6 @@ class MyDojoApp(flask.Flask):
 
         self.navbar_main = mydojo.menu.Menu()
 
-        self.view_classes = {}
         self.sign_ins     = {}
         self.sign_ups     = {}
         self.resources    = {}
@@ -126,15 +125,9 @@ class MyDojoApp(flask.Flask):
         super().register_blueprint(blueprint, **options)
 
         if isinstance(blueprint, MyDojoBlueprint):
-            self.config.setdefault(
-                mydojo.const.CFGKEY_MODULES_LOADED,
-                collections.OrderedDict()
-            ).setdefault(blueprint.name, blueprint)
-
             if hasattr(blueprint, 'register_app'):
                 blueprint.register_app(self)
 
-            self.view_classes.update(blueprint.view_classes)
             self.sign_ins.update(blueprint.sign_ins)
             self.sign_ups.update(blueprint.sign_ups)
 
@@ -156,7 +149,7 @@ class MyDojoApp(flask.Flask):
                 self.register_blueprint(mod.get_blueprint())
             else:
                 raise MyDojoAppException(
-                    "Invalid blueprint module '{}', does not provide the 'get_blueprint' factory method.".format(name)
+                    "Invalid pluggable module '{}', does not provide the 'get_blueprint' factory method.".format(name)
                 )
 
     def log_exception_with_label(self, tbexc, label = ''):
@@ -173,7 +166,7 @@ class MyDojoApp(flask.Flask):
         :return: ``True`` in case endpoint exists, ``False`` otherwise.
         :rtype: bool
         """
-        return endpoint in self.view_classes
+        return endpoint in self.view_functions
 
     def get_endpoint_class(self, endpoint, quiet = False):
         """
@@ -183,13 +176,17 @@ class MyDojoApp(flask.Flask):
         :return: Reference to view class.
         :rtype: class
         """
-        if not endpoint in self.view_classes:
+        if not endpoint in self.view_functions:
             if quiet:
                 return None
             raise MyDojoAppException(
                 "Unknown endpoint name '{}'.".format(endpoint)
             )
-        return self.view_classes[endpoint]
+        try:
+            return self.view_functions[endpoint].view_class
+        except AttributeError:
+            return DecoratedView(self.view_functions[endpoint])
+
 
     def can_access_endpoint(self, endpoint, item = None):
         """
@@ -254,7 +251,6 @@ class MyDojoBlueprint(flask.Blueprint):
     def __init__(self, name, import_name, **kwargs):
         super().__init__(name, import_name, **kwargs)
 
-        self.view_classes = {}
         self.sign_ins     = {}
         self.sign_ups     = {}
 
@@ -290,12 +286,7 @@ class MyDojoBlueprint(flask.Blueprint):
             for auth in view_class.authorization:
                 view_func = auth.require(403)(view_func)
 
-        # Store the reference to view class to internal registry, so it can be
-        # looked up within the application. This feature can be then used for
-        # example for view link authorization (check, that current user has
-        # privileges to access the view before generating link).
-        self.view_classes[view_class.get_view_endpoint()] = view_class
-
+        # Register endpoint to the application.
         self.add_url_rule(route_spec, view_func = view_func)
 
         # Register SIGN IN and SIGN UP views to enable further special handling.
@@ -673,6 +664,23 @@ class BaseView(flask.views.View):
         Return current application`s logger object.
         """
         return flask.current_app.logger
+
+
+class DecoratedView(BaseView):
+    """
+    Wrapper class for classical decorated view functions.
+    """
+    def __init__(self, view_function):
+        self.view_function = view_function
+
+    def get_view_name(self):
+        return self.view_function.__name__
+
+    def get_view_endpoint(self):
+        return self.get_view_name()
+
+    def get_view_icon(self):
+        return 'view-{}'.format(self.get_view_name())
 
 
 class FileNameView(BaseView):
