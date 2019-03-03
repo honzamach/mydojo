@@ -39,6 +39,11 @@ commands::
 	$ make
 	$ make help
 
+Of course you need to have *make* utility installed on your system, on Debian-based
+system you can use following command::
+
+	$ aptitude install make
+
 
 Development prerequisites
 ````````````````````````````````````````````````````````````````````````````````
@@ -77,17 +82,14 @@ the project locally in editable mode:
 
 .. code-block:: shell
 
-	# Perform all installations:
-	$ make develop
+	# Initialize Python virtual environmen:
+	$ make venv
 
 	# Activate virtual environment before any development work:
 	$ . venv/bin/activate
 
-	# Now from within the virtual environment install all required dependencies.
-	# This step is required, because project can have some additional dependencies
-	# or there might be some initialization steps that need to be taken, that are
-	# not possible to do with pip:
-	(venv) $ make deps
+	# Perform all required setup tasks prior to development:
+	(venv) $ make develop
 
 	# Deactivate virtual environment when it is not needed anymore with:
 	$ deactivate
@@ -163,8 +165,9 @@ targets::
 Running development web server
 ````````````````````````````````````````````````````````````````````````````````
 
-Flask comes with built-in webserver for development. It can be launched in following
-ways::
+The web interface for this project is written in excellent `Flask <http://flask.pocoo.org/>`__
+microframework, that comes with built-in webserver for development. It can be
+launched in following ways::
 
 	# A: You may use the Flask built-in command in a following way:
 	(venv) $ FLASK_APP=mydojo FLASK_ENV=development FLASK_CONFIG=development FLASK_CONFIG_FILE=$(realpath ./mydojo.local.conf) flask run

@@ -81,12 +81,15 @@ help:
 	@echo "  * $(GREEN)help$(NC): print this extensive help text and exit"
 	@echo "  * $(GREEN)show-version$(NC): show current project version"
 	@echo "  * $(GREEN)show-envstamp$(NC): show information about current development environment"
+	@echo "  * $(GREEN)venv$(NC): bootstrap Python virtual environment for local development"
 	@echo "  * $(GREEN)develop$(NC): install and configure project locally for development"
 	@echo "  * $(GREEN)deps$(NC): install project dependencies"
 	@echo "  * $(GREEN)clean$(NC): cleanup development and build environment"
 	@echo "  * $(GREEN)docs$(NC): generate project documentation"
 	@echo "  * $(GREEN)check$(NC): perform all checks and tests"
 	@echo "  * $(GREEN)build-whl$(NC): perform local build of Python distribution package"
+	@echo "  * $(GREEN)install-whl-dev$(NC): install package locally in editable mode"
+	@echo "  * $(GREEN)deploy-whl$(NC): deploy built packages to target host"
 	@echo ""
 	@echo "  $(BLUE)$(BOLD)HELPER TARGETS$(NC)"
 	@echo "  $(BLUE)$(BOLD)──────────────$(NC)"
@@ -123,15 +126,11 @@ help:
 	@echo "  * $(GREEN)build-webui$(NC): setup web interface locally"
 	@echo "  * $(GREEN)build-package-whl$(NC): actually generate Python package"
 	@echo ""
-	@echo "  * $(GREEN)deploy$(NC): deploy to remote server"
-	@echo ""
-
 	@echo " $(GREEN)═══════════════════════════════════════════════════════════════════════════════════════$(NC)"
 	@echo ""
 
 
 #-------------------------------------------------------------------------------
-
 
 #
 # Install and configure project locally for development. This target will perform
@@ -145,7 +144,7 @@ help:
 # requirements into newly created/existing virtual environment. When using all
 # other makefile targets you must enable the environment youself!
 #
-develop: FORCE
+venv: FORCE
 	@echo "\n$(GREEN)*** Installing Python virtual environment for local development ***$(NC)\n"
 	@echo "Requested version: $(VENV_PYTHON)"
 	@echo "Path to binary:    `which $(VENV_PYTHON)`"
@@ -164,20 +163,27 @@ develop: FORCE
 	@ls -al $(VENV_PATH)/bin | grep python
 	@ls -al $(VENV_PATH)/bin | grep pip
 
-	@echo "\n$(GREEN)*** Installing project requirements ***$(NC)\n"
-	@. $(VENV_PATH)/bin/activate && $(PIP) install -r etc/requirements.pip
-
-	@echo "\n$(GREEN)*** Installing project development requirements ***$(NC)\n"
-	@. $(VENV_PATH)/bin/activate && $(PIP) install -r etc/requirements-dev.pip
-
-	@echo "\n$(GREEN)*** Installing project into virtual environment in editable mode ***$(NC)\n"
-	@. $(VENV_PATH)/bin/activate && $(PIP) install -e ".[dev]"
-
 	@echo "\n$(CYAN)Your development environment is ready in `. $(VENV_PATH)/bin/activate && python -c 'import sys; print(sys.prefix)'`.$(NC)\n"
 	@echo "Please activate it manually with following command:\n"
 	@echo "\t$(ORANGE). $(VENV_PATH)/bin/activate$(NC)\n"
-	@echo "!!! Please keep in mind, that all makefile targets leave it up to you to activate the correct virtual environment !!!"
+	@echo "Consider adding following alias to your ~/.bashrc file for easier environment activation:\n"
+	@echo "\t$(ORANGE)alias entervenv='. venv/bin/activate'$(NC)\n"
+	@echo "$(BOLD)!!! Please keep in mind, that all makefile targets except this one ('venv') leave it up to you to activate the correct virtual environment !!!$(NC)"
 	@echo ""
+
+#
+# Install and configure project locally for development. This target will perform
+# following tasks for you:
+#   - bootstrap the Python virtual environment into 'venv' subdirectory
+#   - install all requirements (etc/requirements.pip)
+#   - install all development requirements (etc/requirements-dev.pip)
+#   - install the project in editable mode
+#
+# NOTE: This target is calling 'venv/bin/activate' on its own to install the
+# requirements into newly created/existing virtual environment. When using all
+# other makefile targets you must enable the environment youself!
+#
+develop: deps docs install-whl-dev
 
 #
 # Install and configure project dependencies.
@@ -203,6 +209,21 @@ check: pyflakes pylint test
 # Perform local build.
 #
 build-whl: clean build-webui build-package-whl
+
+#
+# Install project locally in editable mode.
+#
+install-whl-dev:
+	@echo "\n$(GREEN)*** Installing project in editable mode ***$(NC)\n"
+	@. $(VENV_PATH)/bin/activate && $(PIP) install -e ".[dev]"
+
+#
+# Deploy built packages to target host.
+#
+deploy-whl: FORCE
+	@echo "\n$(GREEN)*** Deploying packages to target host ***$(NC)\n"
+	@/usr/bin/scp dist/mydojo*.whl $(TARGET_HOST):
+	@echo ""
 
 
 #===============================================================================
@@ -443,11 +464,6 @@ build-package-whl: FORCE
 	@echo "Python version: `$(PYTHON) --version`"
 	@echo ""
 	@$(PYTHON) setup.py sdist bdist_wheel
-	@echo ""
-
-deploy: FORCE
-	@echo "\n$(GREEN)*** Deploying packages to target host ***$(NC)\n"
-	@/usr/bin/scp dist/mydojo*.whl $(TARGET_HOST):
 	@echo ""
 
 
