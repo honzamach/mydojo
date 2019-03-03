@@ -1,0 +1,9 @@
+{{ _('Dear user,') | wordwrap }}
+
+{{ _('this email is a confirmation, that your account "%(item_id)s" in %(app_name)s was just activated. You may now login and start using the system:', item_id = account.login, app_name = mydojo_appname) | wordwrap }}
+
+	{{ url_for('home.index', _external = True ) }}
+
+{{ _('Have a nice day') | wordwrap }}
+
+-- {{ mydojo_appname }}

@@ -1,6 +1,6 @@
 {{ _('Dear administrator,') | wordwrap }}
 
-{{ _('a new account "%(item_id)s" was just registered to %(app_name). Please review the following request and activate or delete the account:', item_id = account.login) | wordwrap }}
+{{ _('a new account "%(item_id)s" was just registered in %(app_name)s. Please review the following request and activate or delete the account:', item_id = account.login, app_name = mydojo_appname) | wordwrap }}
 
     {{ '{:16s}'.format(_('Login:')) }} {{ account.login }}
     {{ '{:16s}'.format(_('Full name:')) }} {{ account.fullname }}

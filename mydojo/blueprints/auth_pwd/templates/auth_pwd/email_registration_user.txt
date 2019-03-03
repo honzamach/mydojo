@@ -1,6 +1,6 @@
 {{ _('Dear user,') | wordwrap }}
 
-{{ _('this email is a confirmation, that you have successfully registered your new user account "%(item_id)s" in %(app_name).', item_id = account.login, app_name = mydojo_appname) | wordwrap }}
+{{ _('this email is a confirmation, that you have successfully registered your new user account "%(item_id)s" in %(app_name)s.', item_id = account.login, app_name = mydojo_appname) | wordwrap }}
 
 {{ _('During the registration process you have provided following information:') | wordwrap }}
 

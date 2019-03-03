@@ -146,6 +146,7 @@ class BaseConfig:  # pylint: disable=locally-disabled,too-few-public-methods
         'mydojo.blueprints.blog',
         'mydojo.blueprints.gadgets',
         'mydojo.blueprints.lab',
+        'mydojo.blueprints.users',
         'mydojo.blueprints.devtools'
     ]
     """List of requested application blueprints to be loaded during setup."""
@@ -240,6 +241,7 @@ class DevelopmentConfig(BaseConfig):  # pylint: disable=locally-disabled,too-few
         'mydojo.blueprints.blog',
         'mydojo.blueprints.gadgets',
         'mydojo.blueprints.lab',
+        'mydojo.blueprints.users',
         'mydojo.blueprints.devtools'
     ]
     """Overwrite default :py:const:`mydojo.config.Config.MYDOJO_MODULES`."""

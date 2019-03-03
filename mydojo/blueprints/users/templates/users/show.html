@@ -1,0 +1,171 @@
+{% extends "_layout_show.html" %}
+
+{%- block contentinner %}
+
+            <p>
+                <small>
+                    <strong>{{ _('Account created') }}:</strong> {{ babel_format_datetime(item.createtime) }} ({{ _('before') }} {{ babel_format_timedelta(mydojo_cdt_utc - item.createtime) }})
+                    &nbsp;|&nbsp;
+                    <strong>{{ _('Last login') }}:</strong> {% if  item.logintime %}{{ babel_format_datetime(item.logintime) }} ({{ _('before') }} {{ babel_format_timedelta(get_datetime_utc() - item.logintime) }}){% else %}{{ _('never') }}{% endif %}
+                </small>
+            </p>
+            <br>
+
+            <div class="row">
+
+                <div class="col-md-4">
+                    <h4>{{ _('Metadata') }}</h4>
+                    <table class="table table-striped">
+                        <tbody>
+                            <tr>
+                                <th>
+                                    {{ _('Login') }}:
+                                </th>
+                                <td>
+                                    {{ item.login | default(_('<< unknown >>'), True) }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    {{ _('Full name') }}:
+                                </th>
+                                <td>
+                                    {{ item.fullname | default(_('<< unknown >>'), True) }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    {{ _('Email') }}:
+                                </th>
+                                <td>
+                                    {%- if item.email %}
+                                    <a href="mailto:{{ item.email }}">{{ item.email }}</a>
+                                    {%- else %}
+                                    {{ _('<< unknown >>') }}
+                                    {%- endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    {{ _('State') }}:
+                                </th>
+                                <td>
+                                    {{ macros_site.render_label_item_state(item.enabled, True) }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    {{ _('Roles') }}:
+                                </th>
+                                <td>
+                                    {{ macros_site.render_labels_role_list(config['ROLES'], item, True) }}
+                                </td>
+                            </tr>
+                            {%- if can_access_endpoint('auth_api.key-generate', item) or item.apikey %}
+                            <tr>
+                                <th>
+                                    {{ _('API access key') }}:
+                                </th>
+                                <td>
+                                    {%- if item.apikey %}
+                                    <div class="input-group">
+                                        {%- if is_it_me(item) %}
+                                        <input type="text" value="{{ item.apikey }}" readonly="readonly" class="form-control">
+                                        {%- endif %}
+                                        <span class="input-group-btn">
+                                            <a role="button" class="btn btn-default" href="{{ url_for('auth_api.key-delete', item_id = item.id, next = request.url) }}" data-toggle="tooltip" title="{{ get_endpoint_class('auth_api.key-delete').get_menu_legend() }}">
+                                                {{ get_icon(get_endpoint_class('auth_api.key-delete').get_menu_icon()) }}{% if not is_it_me(item) %} {{ get_endpoint_class('auth_api.key-delete').get_menu_title()}}{% endif %}
+                                            </a>
+                                        </span>
+                                    </div>
+                                    {%- else %}
+                                    <div class="input-group">
+                                        <span class="input-group-btn">
+                                            <a role="button" class="btn btn-default btn-sm" href="{{ url_for('auth_api.key-generate', item_id = item.id, next = request.url) }}" data-toggle="tooltip" title="{{ get_endpoint_class('auth_api.key-generate').get_menu_legend() }}">
+                                                {{ get_icon(get_endpoint_class('auth_api.key-generate').get_menu_icon()) }} {{ get_endpoint_class('auth_api.key-generate').get_menu_title()}}
+                                            </a>
+                                        </span>
+                                    </div>
+                                    {%- endif %}
+                                </td>
+                            </tr>
+                            {%- endif %}
+                            <tr>
+                                <th>
+                                    {{ _('Prefered locale') }}:
+                                </th>
+                                <td>
+                                    {%- if item.locale %}
+                                    {{ get_country_flag(item.locale|upper) }} {{ babel_translate_locale(item.locale, True) }} ({{ item.locale }})
+                                    {%- else %}
+                                    {{ _('<< system default >>') }}
+                                    {%- endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    {{ _('Prefered timezone') }}:
+                                </th>
+                                <td>
+                                    {%- if item.timezone %}
+                                    {{ item.timezone }}
+                                    {%- else %}
+                                    {{ _('<< system default >>') }}
+                                    {%- endif %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="col-md-4">
+                    <h4>{{ _('Group memberships') }} <span class="badge">{{ item.memberships | length }}</span></h4>
+                    {%- if item.memberships %}
+                    <table class="table table-striped">
+                        <tbody>
+                            {%- for subitem in item.memberships %}
+                            <tr>
+                                <td>
+                                    {{ subitem.name }}
+                                </td>
+                                <td>
+                                    {{ macros_page.render_menu_context_actions(subitem, context_action_menu_groups) }}
+                                </td>
+                            </tr>
+                            {%- endfor %}
+                        </tbody>
+                    </table>
+                    {%- else %}
+                    {%- call macros_site.render_alert('info', False) %}
+                    {{ _('This user is not member of any group at the moment.') }}
+                    {%- endcall %}
+                    {%- endif %}
+                </div>
+
+                <div class="col-md-4">
+                    <h4>{{ _('Group managements') }} <span class="badge">{{ item.managements | length }}</span></h4>
+                    {%- if item.managements %}
+                    <table class="table table-striped">
+                        <tbody>
+                            {%- for subitem in item.managements %}
+                            <tr>
+                                <td>
+                                    {{ subitem.name }}
+                                </td>
+                                <td>
+                                    {{ macros_page.render_menu_context_actions(subitem, context_action_menu_groups) }}
+                                </td>
+                            </tr>
+                            {%- endfor %}
+                        </tbody>
+                    </table>
+                    {%- else %}
+                    {%- call macros_site.render_alert('info', False) %}
+                    {{ _('This user is not manager of any group at the moment.') }}
+                    {%- endcall %}
+                    {%- endif %}
+                </div>
+
+            </div><!-- /.row -->
+
+{% endblock contentinner %}

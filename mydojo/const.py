@@ -156,6 +156,7 @@ FA_ICONS = {
     'module-blog':     '<i class="fas fa-fw fa-journal-whills"></i>',
     'module-gadgets':  '<i class="fas fa-fw fa-tools"></i>',
     'module-lab':      '<i class="fas fa-fw fa-flask"></i>',
+    'module-users':    '<i class="fas fa-fw fa-user"></i>',
     'module-devtools': '<i class="fas fa-fw fa-bug"></i>',
 
     #

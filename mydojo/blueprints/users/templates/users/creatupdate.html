@@ -1,0 +1,67 @@
+{%- extends "_layout.html" %}
+
+{%- block content %}
+
+            <div class="row">
+                <div class="col-md-6 offset-md-3">
+
+                    <form method="POST" action="{{ form_url }}">
+                        <fieldset>
+                            <legend>
+                                {{ mydojo_current_view.get_view_title() }}
+                            </legend>
+
+    {%- if item_action == 'create' or current_user.has_role('admin') %}
+
+                            {{ macros_form.render_form_item_default(form.login) }}
+
+    {%- elif item_action == 'update' %}
+
+                            {{ macros_form.render_form_item_static(_('Login:'), item.login) }}
+
+    {%- endif %}
+
+                            {{ macros_form.render_form_item_default(form.fullname) }}
+
+                            {{ macros_form.render_form_item_default(form.email) }}
+
+    {%- if item_action == 'create' or current_user.has_role('admin') %}
+
+                            <hr>
+
+                            {{ macros_form.render_form_item_radiobutton(form.enabled) }}
+
+                            {{ macros_form.render_form_item_select(form.roles) }}
+
+                            {{ macros_form.render_form_item_select(form.memberships) }}
+
+                            {{ macros_form.render_form_item_select(form.managements) }}
+    {%- endif %}
+
+                            <hr>
+
+                            {{ macros_form.render_form_item_select(form.locale) }}
+
+                            {{ macros_form.render_form_item_select(form.timezone) }}
+
+                            <hr>
+
+                            {{ macros_form.render_form_errors(form.next.errors) }}
+                            {{ form.next }}
+                            {{ macros_form.render_form_errors(form.csrf_token.errors) }}
+                            {{ form.csrf_token }}
+
+                            <div class="btn-toolbar" role="toolbar" aria-label="{{ _('Form submission buttons') }}">
+                                <div class="btn-group" role="group">
+                                    {{ form.cancel(class_='btn btn-secondary') }}
+                                    {{ form.submit(class_='btn btn-primary') }}
+                                </div>
+                            </div>
+
+                        <fieldset>
+                    </form>
+
+                </div> <!-- /.col-md-6 /.offset-md-3 -->
+            </div> <!-- /.row -->
+
+{%- endblock content %}
