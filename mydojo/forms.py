@@ -23,10 +23,47 @@ import urllib.parse
 #
 import wtforms
 import flask
-from flask_babel import gettext
+import flask_wtf
+from flask_babel import gettext, lazy_gettext
 
 import mydojo.const
 import mydojo.db
+
+
+def str_to_bool(value):
+    """
+    Convert given string value to boolean.
+    """
+    if str(value).lower() == 'true':
+        return True
+    if str(value).lower() == 'false':
+        return False
+    raise ValueError('Invalid string value {} to be converted to boolean'.format(str(value)))
+
+
+def str_to_bool_with_none(value):
+    """
+    Convert given string value to boolean or ``None``.
+    """
+    if str(value).lower() == 'true':
+        return True
+    if str(value).lower() == 'false':
+        return False
+    if str(value).lower() == 'none':
+        return None
+    raise ValueError('Invalid string value {} to be converted to boolean'.format(str(value)))
+
+
+def str_to_int_with_none(value):
+    """
+    Convert given string value to boolean or ``None``.
+    """
+    if str(value).lower() == 'none':
+        return None
+    try:
+        return int(value)
+    except:
+        raise ValueError('Invalid string value {} to be converted to integer'.format(str(value)))
 
 
 #-------------------------------------------------------------------------------
@@ -98,3 +135,49 @@ def check_unique_login(form, field):  # pylint: disable=locally-disabled,unused-
                 val = str(field.data)
             )
         )
+
+
+#-------------------------------------------------------------------------------
+
+
+class BaseItemForm(flask_wtf.FlaskForm):
+    """
+    Class representing generic item action (create/update/delete) form for MyDojo
+    application.
+
+    This form contains support for redirection back to original page.
+    """
+    next = wtforms.HiddenField()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Populate the redirection URL.
+        if not self.next.data:
+            self.next.data = get_redirect_target() or ''
+
+    @staticmethod
+    def is_multivalue(field_name):  # pylint: disable=locally-disabled,unused-argument
+        """
+        Check, if given form field is a multivalue field.
+
+        :param str field_name: Name of the form field.
+        :return: ``True``, if the field can contain multiple values, ``False`` otherwise.
+        :rtype: bool
+        """
+        return False
+
+
+class ItemActionConfirmForm(BaseItemForm):
+    """
+    Class representing generic item action confirmation form for MyDojo application.
+
+    This form contains nothing else but two buttons, one for confirmation, one for
+    canceling the delete action. Actual item identifier is passed as part of the URL.
+    """
+    submit = wtforms.SubmitField(
+        lazy_gettext('Confirm')
+    )
+    cancel = wtforms.SubmitField(
+        lazy_gettext('Cancel')
+    )

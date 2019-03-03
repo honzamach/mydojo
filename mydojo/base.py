@@ -30,16 +30,30 @@ Module contents
     * :py:class:`FileNameView`
     * :py:class:`FileIDView`
     * :py:class:`RenderableView`
-    * :py:class:`SimpleView`
+
+        * :py:class:`SimpleView`
+        * :py:class:`ItemSearchView`
+        * :py:class:`ItemListView`
+        * :py:class:`ItemShowView`
+        * :py:class:`ItemActionView`
+
+            * :py:class:`ItemCreateView`
+            * :py:class:`ItemUpdateView`
+            * :py:class:`ItemDeleteView`
+            * :py:class:`ItemChangeView`
+
+                * :py:class:`ItemEnableView`
+                * :py:class:`ItemDisableView`
 """
 
 
 __author__ = "Honza Mach <honza.mach.ml@gmail.com>"
 
 
-import collections
+import sys
 import datetime
 import weakref
+import traceback
 
 #
 # Flask related modules.
@@ -51,6 +65,7 @@ import flask
 import flask.app
 import flask.views
 import flask_login
+from flask_babel import gettext
 
 #
 # Custom modules.
@@ -59,7 +74,7 @@ import mydojo.const
 import mydojo.db
 import mydojo.menu
 import mydojo.errors
-from mydojo.forms import get_redirect_target
+from mydojo.forms import get_redirect_target, ItemActionConfirmForm
 
 
 class MyDojoAppException(Exception):
@@ -435,7 +450,7 @@ class SQLAlchemyMixin:
         raise NotImplementedError()
 
     @property
-    def search_by(self):
+    def fetch_by(self):
         """
         Return model`s attribute (column) according to which to search for the item.
         """
@@ -476,21 +491,23 @@ class SQLAlchemyMixin:
     @staticmethod
     def build_query(query, model, form_args):  # pylint: disable=locally-disabled,unused-argument
         """
-        *Hook method*. Modify given query according to the given arguments.
+        Modify given query according to the given arguments.
         """
         return query
 
-    def fetch(self, item_id):
+    def fetch(self, item_id, fetch_by = None):
         """
         Fetch item with given primary identifier from the database.
         """
-        return self.dbquery().filter(self.search_by == item_id).one()
+        fetch_by = fetch_by or self.fetch_by
+        return self.dbquery().filter(fetch_by == item_id).one()
 
-    def fetch_first(self, item_id):
+    def fetch_first(self, item_id, fetch_by = None):
         """
         Fetch item with given primary identifier from the database.
         """
-        return self.dbquery().filter(self.search_by == item_id).first()
+        fetch_by = fetch_by or self.fetch_by
+        return self.dbquery().filter(fetch_by == item_id).first()
 
     def search(self, form_args):
         """
@@ -593,10 +610,7 @@ class BaseView(flask.views.View):
         :return: URL for the view.
         :rtype: str
         """
-        return flask.url_for(
-            cls.get_view_endpoint(),
-            **kwargs
-        )
+        return flask.url_for(cls.get_view_endpoint(), **kwargs)
 
     @classmethod
     def get_view_icon(cls):
@@ -618,7 +632,7 @@ class BaseView(flask.views.View):
         Return title for the view, that will be displayed in the ``title`` tag of
         HTML ``head`` element and also as the content of page header in ``h2`` tag.
 
-        Default implementation returns the return value of :py:func:`hawat.base.HawatBaseView.get_menu_title`
+        Default implementation returns the return value of :py:func:`mydojo.base.BaseView.get_menu_title`
         method by default.
 
         :param dict kwargs: Optional parameters.
@@ -632,7 +646,7 @@ class BaseView(flask.views.View):
         """
         Return menu entry title for the view.
 
-        Default implementation returns the return value of :py:func:`hawat.base.HawatBaseView.get_view_title`
+        Default implementation returns the return value of :py:func:`mydojo.base.BaseView.get_view_title`
         method by default.
 
         :param dict kwargs: Optional parameters.
@@ -646,7 +660,7 @@ class BaseView(flask.views.View):
         """
         Return menu entry legend for the view (menu entry hover tooltip).
 
-        Default implementation returns the return value of :py:func:`hawat.base.HawatBaseView.get_menu_title`
+        Default implementation returns the return value of :py:func:`mydojo.base.BaseView.get_menu_title`
         method by default.
 
         :param dict kwargs: Optional parameters.
@@ -666,7 +680,7 @@ class BaseView(flask.views.View):
         return flask.current_app.logger
 
 
-class DecoratedView(BaseView):
+class DecoratedView():
     """
     Wrapper class for classical decorated view functions.
     """
@@ -674,12 +688,15 @@ class DecoratedView(BaseView):
         self.view_function = view_function
 
     def get_view_name(self):
+        """Simple adapter method to enable support of classical decorated views."""
         return self.view_function.__name__
 
     def get_view_endpoint(self):
+        """Simple adapter method to enable support of classical decorated views."""
         return self.get_view_name()
 
     def get_view_icon(self):
+        """Simple adapter method to enable support of classical decorated views."""
         return 'view-{}'.format(self.get_view_name())
 
 
@@ -913,3 +930,851 @@ class SimpleView(RenderableView):  # pylint: disable=locally-disabled,abstract-m
         """
         self.do_before_response()
         return self.generate_response()
+
+
+class ItemSearchView(RenderableView):
+    """
+    Base class for item search views.
+    """
+    @classmethod
+    def get_view_name(cls):
+        """*Implementation* of :py:func:`mydojo.base.BaseView.get_view_name`."""
+        return 'search'
+
+    @classmethod
+    def get_view_icon(cls):
+        """*Implementation* of :py:func:`mydojo.base.BaseView.get_view_name`."""
+        return 'action-search'
+
+    @staticmethod
+    def get_search_form(request_args):
+        """
+        Must return instance of :py:mod:`flask_wtf.FlaskForm` appropriate for
+        searching given type of items.
+        """
+        raise NotImplementedError()
+
+    @staticmethod
+    def get_query_parameters(form, request_args):
+        """
+        Get query parameters by comparing contents of processed form data and
+        original request arguments. Result of this method can be used for generating
+        modified URLs back to current request. One of the use cases is the result
+        pager/paginator.
+        """
+        params = {}
+        for arg in request_args:
+            if getattr(form, arg, None) and arg in request_args:
+                # Handle multivalue request arguments separately
+                # Resources:
+                #   http://flask.pocoo.org/docs/1.0/api/#flask.Request.args
+                #   http://werkzeug.pocoo.org/docs/0.14/datastructures/#werkzeug.datastructures.MultiDict
+                try:
+                    if form.is_multivalue(arg):
+                        params[arg] = request_args.getlist(arg)
+                    else:
+                        params[arg] = request_args[arg]
+                except AttributeError:
+                    params[arg] = request_args[arg]
+        return params
+
+    def search(self, form_args):
+        """
+        Perform actual search with given query.
+        """
+        raise NotImplementedError()
+
+    #---------------------------------------------------------------------------
+
+    def do_before_search(self, form_data):  # pylint: disable=locally-disabled,no-self-use,unused-argument
+        """
+        This hook method will be called before search attempt.
+        """
+
+    def do_after_search(self, items):  # pylint: disable=locally-disabled,no-self-use,unused-argument
+        """
+        This hook method will be called after successfull search.
+        """
+
+    def dispatch_request(self):  # pylint: disable=locally-disabled,arguments-differ
+        """
+        Mandatory interface required by the :py:func:`flask.views.View.dispatch_request`.
+        Will be called by the **Flask** framework to service the request.
+        """
+        form = self.get_search_form(flask.request.args)
+        flask.g.search_form = form
+
+        if mydojo.const.FORM_ACTION_SUBMIT in flask.request.args:
+            if form.validate():
+                form_data = form.data
+
+                self.mark_time(
+                    'preprocess_begin',
+                    tag = 'search',
+                    label = 'Begin preprocessing for {}'.format(flask.request.full_path),
+                    log = True
+                )
+                self.do_before_search(form_data)
+                self.mark_time(
+                    'preprocess_end',
+                    tag = 'search',
+                    label = 'Done preprocessing for {}'.format(flask.request.full_path),
+                    log = True
+                )
+
+                self.mark_time(
+                    'search_begin',
+                    tag = 'search',
+                    label = 'Begin searching for {}'.format(flask.request.full_path),
+                    log = True
+                )
+                items = self.search(form_data)
+                self.mark_time(
+                    'search_end',
+                    tag = 'search',
+                    label = 'Done searching for {}, found: {}'.format(flask.request.full_path, len(items)),
+                    log = True
+                )
+                self.response_context.update(
+                    searched = True,
+                    items = items,
+                    items_count = len(items),
+                    form_data = form_data
+                )
+
+                self.mark_time(
+                    'postprocess_begin',
+                    tag = 'search',
+                    label = 'Begin postprocessing for {}'.format(flask.request.full_path),
+                    log = True
+                )
+                self.do_after_search(items)
+                self.mark_time(
+                    'postprocess_end',
+                    tag = 'search',
+                    label = 'Done postprocessing for {}'.format(flask.request.full_path),
+                    log = True
+                )
+            else:
+                self.response_context.update(
+                    form_errors = [(field_name, err) for field_name, error_messages in form.errors.items() for err in error_messages]
+                )
+
+        self.response_context.update(
+            query_params = self.get_query_parameters(form, flask.request.args)
+        )
+        self.do_before_response()
+        return self.generate_response()
+
+
+class ItemListView(RenderableView):  # pylint: disable=locally-disabled,abstract-method
+    """
+    Base class for item *list* views. These views provide quick and simple access
+    to lists of all objects.
+    """
+
+    @classmethod
+    def get_view_name(cls):
+        """*Implementation* of :py:func:`mydojo.base.BaseView.get_view_name`."""
+        return 'list'
+
+    @classmethod
+    def get_action_menu(cls):
+        """
+        Get action menu for all listed items.
+        """
+        return None
+
+    @classmethod
+    def get_context_action_menu(cls):
+        """
+        Get context action menu for single particular item.
+        """
+        return None
+
+    def search(self, form_args):
+        """
+        Perform actual search with given form arguments.
+        """
+        raise NotImplementedError()
+
+    def dispatch_request(self):  # pylint: disable=locally-disabled,arguments-differ
+        """
+        Mandatory interface required by the :py:func:`flask.views.View.dispatch_request`.
+        Will be called by the **Flask** framework to service the request.
+
+        List of all items will be retrieved from database and injected into template
+        to be displayed to the user.
+        """
+        items = self.search({})
+
+        self.response_context.update(
+            items = items
+        )
+
+        self.do_before_response()
+        return self.generate_response()
+
+
+class ItemShowView(RenderableView):  # pylint: disable=locally-disabled,abstract-method
+    """
+    Base class for item *show* views. These views expect unique item identifier
+    as parameter and are supposed to display specific information about single
+    item.
+    """
+
+    @classmethod
+    def get_view_name(cls):
+        """*Implementation* of :py:func:`mydojo.base.BaseView.get_view_name`."""
+        return 'show'
+
+    @classmethod
+    def get_view_icon(cls):
+        """*Implementation* of :py:func:`mydojo.base.BaseView.get_view_icon`."""
+        return 'action-show'
+
+    @classmethod
+    def get_view_title(cls, **kwargs):
+        """*Implementation* of :py:func:`mydojo.base.BaseView.get_menu_title`."""
+        return gettext('Show')
+
+    @classmethod
+    def get_view_url(cls, **kwargs):
+        """*Implementation* of :py:func:`mydojo.base.BaseView.get_view_url`."""
+        return flask.url_for(
+            cls.get_view_endpoint(),
+            item_id = kwargs['item'].get_id()
+        )
+
+    @classmethod
+    def authorize_item_action(cls, item):  # pylint: disable=locally-disabled,unused-argument
+        """
+        Perform access authorization for current user to particular item.
+        """
+        return True
+
+    @classmethod
+    def get_action_menu(cls):
+        """
+        Get action menu for particular item.
+        """
+        return None
+
+    def fetch(self, item_id, fetch_by = None):
+        """
+        Fetch item with given ID.
+        """
+        raise NotImplementedError()
+
+    def dispatch_request(self, item_id):  # pylint: disable=locally-disabled,arguments-differ
+        """
+        Mandatory interface required by the :py:func:`flask.views.View.dispatch_request`.
+        Will be called by the **Flask** framework to service the request.
+
+        Single item with given unique identifier will be retrieved from database
+        and injected into template to be displayed to the user.
+        """
+        item = self.fetch(item_id)
+        if not item:
+            self.abort(404)
+
+        if not self.authorize_item_action(item):
+            self.abort(403)
+
+        self.response_context.update(
+            item_id = item_id,
+            item = item
+        )
+
+        self.do_before_response()
+        return self.generate_response()
+
+
+class ItemActionView(RenderableView):  # pylint: disable=locally-disabled,abstract-method
+    """
+    Base class for item action views. These views perform various actions
+    (create/update/delete) with given item class.
+    """
+    @classmethod
+    def get_view_icon(cls):
+        """*Implementation* of :py:func:`mydojo.base.BaseView.get_view_icon`."""
+        return 'action-{}'.format(
+            cls.get_view_name().replace('_', '-')
+        )
+
+    @classmethod
+    def get_view_url(cls, **kwargs):
+        """*Implementation* of :py:func:`mydojo.base.BaseView.get_view_url`."""
+        return flask.url_for(
+            cls.get_view_endpoint(),
+            item_id = kwargs['item'].get_id()
+        )
+
+    @classmethod
+    def get_view_template(cls):
+        """*Implementation* of :py:func:`mydojo.base.RenderableView.get_view_template`."""
+        return 'form_{}.html'.format(
+            cls.get_view_name().replace('-', '_')
+        )
+
+    @staticmethod
+    def get_message_success(**kwargs):
+        """
+        *Hook method*. Must return text for flash message in case of action *success*.
+        The text may contain HTML characters and will be passed to :py:class:`flask.Markup`
+        before being used, so to certain extend you may emphasize and customize the output.
+        """
+        raise NotImplementedError()
+
+    @staticmethod
+    def get_message_failure(**kwargs):
+        """
+        *Hook method*. Must return text for flash message in case of action *failure*.
+        The text may contain HTML characters and will be passed to :py:class:`flask.Markup`
+        before being used, so to certain extend you may emphasize and customize the output.
+        """
+        raise NotImplementedError()
+
+    @staticmethod
+    def get_message_cancel(**kwargs):
+        """
+        *Hook method*. Must return text for flash message in case of action *cancel*.
+        The text may contain HTML characters and will be passed to :py:class:`flask.Markup`
+        before being used, so to certain extend you may emphasize and customize the output.
+        """
+        raise NotImplementedError()
+
+    def get_url_next(self):
+        """
+        *Hook method*. Must return URL for redirection after action *success*. In
+        most cases there should be call for :py:func:`flask.url_for` function
+        somewhere in this method.
+        """
+        try:
+            return flask.url_for(
+                '{}.{}'.format(self.module_name, 'list')
+            )
+        except werkzeug.routing.BuildError:
+            return flask.url_for(
+                flask.current_app.config['MYDOJO_ENDPOINT_HOME']
+            )
+
+    def check_action_cancel(self, form, **kwargs):
+        """
+        Check the form for *cancel* button press and cancel the action.
+        """
+        if getattr(form, mydojo.const.FORM_ACTION_CANCEL).data:
+            self.flash(
+                flask.Markup(self.get_message_cancel(**kwargs)),
+                mydojo.const.FLASH_INFO
+            )
+            return self.redirect(
+                default_url = self.get_url_next()
+            )
+
+        return None
+
+    def do_before_action(self, item):  # pylint: disable=locally-disabled,no-self-use,unused-argument
+        """
+        Will be called before any action handling tasks.
+        """
+
+    def do_after_action(self, item):  # pylint: disable=locally-disabled,no-self-use,unused-argument
+        """
+        Will be called after successfull action handling tasks.
+        """
+
+    @classmethod
+    def authorize_item_action(cls, item = None):  # pylint: disable=locally-disabled,unused-argument
+        """
+        Perform access authorization for current user to particular item.
+        """
+        return True
+
+    @property
+    def dbsession(self):
+        """
+        This property contains the reference to current *SQLAlchemy* database session.
+        """
+        raise NotImplementedError()
+
+    @property
+    def dbmodel(self):
+        """
+        This property must be implemented in each subclass to
+        return reference to appropriate model class based on *SQLAlchemy* declarative
+        base.
+        """
+        raise NotImplementedError()
+
+    def fetch(self, item_id, fetch_by = None):
+        """
+        Perform actual search with given query.
+        """
+        raise NotImplementedError()
+
+
+class ItemCreateView(ItemActionView):  # pylint: disable=locally-disabled,abstract-method
+    """
+    Base class for item *create* action views. These views create new items in
+    database.
+    """
+
+    @classmethod
+    def get_view_name(cls):
+        """*Implementation* of :py:func:`mydojo.base.BaseView.get_view_name`."""
+        return 'create'
+
+    @classmethod
+    def get_view_template(cls):
+        """
+        Return Jinja2 template file that should be used for rendering the view
+        content. This default implementation works only in case the view class
+        was properly registered into the parent blueprint/module with
+        :py:func:`mydojo.base.MyDojoBlueprint.register_view_class` method.
+
+        :return: Title for the view.
+        :rtype: str
+        """
+        if cls.module_name:
+            return '{}/creatupdate.html'.format(cls.module_name)
+        raise RuntimeError("Unable to guess default view template, because module name was not yet set.")
+
+    @classmethod
+    def get_view_title(cls, **kwargs):
+        """*Implementation* of :py:func:`mydojo.base.BaseView.get_menu_title`."""
+        return gettext('Create')
+
+    @classmethod
+    def get_view_url(cls, **kwargs):
+        """*Implementation* of :py:func:`mydojo.base.BaseView.get_view_url`."""
+        return flask.url_for(cls.get_view_endpoint())
+
+    @staticmethod
+    def get_item_form():
+        """
+        *Hook method*. Must return instance of :py:mod:`flask_wtf.FlaskForm`
+        appropriate for given item class.
+        """
+        raise NotImplementedError()
+
+    def dispatch_request(self):  # pylint: disable=locally-disabled,arguments-differ
+        """
+        Mandatory interface required by the :py:func:`flask.views.View.dispatch_request`.
+        Will be called by the **Flask** framework to service the request.
+
+        This method will attempt to validate the submitted form and create new
+        instance of appropriate item from form data and finally store the item
+        into the database.
+        """
+        if not self.authorize_item_action():
+            self.abort(403)
+
+        item = self.dbmodel()
+
+        form = self.get_item_form()
+
+        cancel_response = self.check_action_cancel(form)
+        if cancel_response:
+            return cancel_response
+
+        if form.validate_on_submit():
+            form_data = form.data
+            form.populate_obj(item)
+
+            self.do_before_action(item)
+
+            if form_data[mydojo.const.FORM_ACTION_SUBMIT]:
+                try:
+                    self.dbsession.add(item)
+                    self.dbsession.commit()
+                    self.do_after_action(item)
+
+                    self.flash(
+                        flask.Markup(self.get_message_success(item = item)),
+                        mydojo.const.FLASH_SUCCESS
+                    )
+                    return self.redirect(default_url = self.get_url_next())
+
+                except Exception:  # pylint: disable=locally-disabled,broad-except
+                    self.dbsession.rollback()
+                    self.flash(
+                        flask.Markup(self.get_message_failure()),
+                        mydojo.const.FLASH_FAILURE
+                    )
+                    flask.current_app.log_exception_with_label(
+                        traceback.TracebackException(*sys.exc_info()),
+                        self.get_message_failure()
+                    )
+                    return self.redirect(default_url = self.get_url_next())
+
+        self.response_context.update(
+            action_name = gettext('Create'),
+            form_url    = flask.url_for(self.get_view_endpoint()),
+            form        = form,
+            item_action = mydojo.const.ACTION_ITEM_CREATE,
+            item        = item
+        )
+
+        self.do_before_response()
+        return self.generate_response()
+
+
+class ItemUpdateView(ItemActionView):  # pylint: disable=locally-disabled,abstract-method
+    """
+    Base class for item *update* action views. These views update existing items
+    in database.
+    """
+
+    @classmethod
+    def get_view_name(cls):
+        """*Implementation* of :py:func:`mydojo.base.BaseView.get_view_name`."""
+        return 'update'
+
+    @classmethod
+    def get_view_template(cls):
+        """
+        Return Jinja2 template file that should be used for rendering the view
+        content. This default implementation works only in case the view class
+        was properly registered into the parent blueprint/module with
+        :py:func:`mydojo.base.MyDojoBlueprint.register_view_class` method.
+
+        :return: Title for the view.
+        :rtype: str
+        """
+        if cls.module_name:
+            return '{}/creatupdate.html'.format(cls.module_name)
+        raise RuntimeError("Unable to guess default view template, because module name was not yet set.")
+
+    @classmethod
+    def get_view_title(cls, **kwargs):
+        """*Implementation* of :py:func:`mydojo.base.BaseView.get_menu_title`."""
+        return gettext('Update')
+
+    @staticmethod
+    def get_item_form(item):
+        """
+        *Hook method*. Must return instance of :py:mod:`flask_wtf.FlaskForm`
+        appropriate for given item class.
+        """
+        raise NotImplementedError()
+
+    def dispatch_request(self, item_id):  # pylint: disable=locally-disabled,arguments-differ
+        """
+        Mandatory interface required by the :py:func:`flask.views.View.dispatch_request`.
+        Will be called by the **Flask** framework to service the request.
+
+        This method will attempt to validate the submitted form and update the
+        instance of appropriate item from form data and finally store the item
+        back into the database.
+        """
+        item = self.fetch(item_id)
+        if not item:
+            self.abort(404)
+
+        if not self.authorize_item_action(item):
+            self.abort(403)
+
+        self.dbsession.add(item)
+
+        form = self.get_item_form(item)
+
+        cancel_response = self.check_action_cancel(form, item = item)
+        if cancel_response:
+            return cancel_response
+
+        if form.validate_on_submit():
+            form_data = form.data
+            form.populate_obj(item)
+
+            self.do_before_action(item)
+
+            if form_data[mydojo.const.FORM_ACTION_SUBMIT]:
+                try:
+                    if item not in self.dbsession.dirty:
+                        self.flash(
+                            gettext('No changes detected, no update needed.'),
+                            mydojo.const.FLASH_INFO
+                        )
+                        return self.redirect(default_url = self.get_url_next())
+
+                    self.dbsession.commit()
+                    self.do_after_action(item)
+
+                    self.flash(
+                        flask.Markup(self.get_message_success(item = item)),
+                        mydojo.const.FLASH_SUCCESS
+                    )
+                    return self.redirect(default_url = self.get_url_next())
+
+                except Exception:  # pylint: disable=locally-disabled,broad-except
+                    self.dbsession.rollback()
+                    self.flash(
+                        flask.Markup(self.get_message_failure(item = item)),
+                        mydojo.const.FLASH_FAILURE
+                    )
+                    flask.current_app.log_exception_with_label(
+                        traceback.TracebackException(*sys.exc_info()),
+                        self.get_message_failure(item = item)
+                    )
+                    return self.redirect(default_url = self.get_url_next())
+
+        self.response_context.update(
+            action_name = gettext('Update'),
+            form_url    = flask.url_for(self.get_view_endpoint(), item_id = item_id),
+            form        = form,
+            item_action = mydojo.const.ACTION_ITEM_UPDATE,
+            item_id     = item_id,
+            item        = item
+        )
+
+        self.do_before_response()
+        return self.generate_response()
+
+
+class ItemDeleteView(ItemActionView):  # pylint: disable=locally-disabled,abstract-method
+    """
+    Base class for item *delete* action views. These views delete existing items
+    from database.
+    """
+
+    @classmethod
+    def get_view_name(cls):
+        """*Implementation* of :py:func:`mydojo.base.BaseView.get_view_name`."""
+        return 'delete'
+
+    @classmethod
+    def get_view_title(cls, **kwargs):
+        """*Implementation* of :py:func:`mydojo.base.BaseView.get_menu_title`."""
+        return gettext('Delete')
+
+    def dispatch_request(self, item_id):  # pylint: disable=locally-disabled,arguments-differ
+        """
+        Mandatory interface required by the :py:func:`flask.views.View.dispatch_request`.
+        Will be called by the **Flask** framework to service the request.
+
+        This method will attempt to validate the submitted form and delete the
+        instance of appropriate item from database in case user agreed to the
+        item removal action.
+        """
+        item = self.fetch(item_id)
+        if not item:
+            self.abort(404)
+
+        if not self.authorize_item_action(item):
+            self.abort(403)
+
+        form = ItemActionConfirmForm()
+
+        cancel_response = self.check_action_cancel(form, item = item)
+        if cancel_response:
+            return cancel_response
+
+        if form.validate_on_submit():
+            form_data = form.data
+
+            self.do_before_action(item)
+
+            if form_data[mydojo.const.FORM_ACTION_SUBMIT]:
+                try:
+                    self.dbsession.delete(item)
+                    self.dbsession.commit()
+                    self.do_after_action(item)
+
+                    self.flash(
+                        flask.Markup(self.get_message_success(item = item)),
+                        mydojo.const.FLASH_SUCCESS
+                    )
+                    return self.redirect(
+                        default_url = self.get_url_next(),
+                        exclude_url = flask.url_for(
+                            '{}.{}'.format(self.module_name, 'show'),
+                            item_id = item.id
+                        )
+                    )
+
+                except Exception:  # pylint: disable=locally-disabled,broad-except
+                    self.dbsession.rollback()
+                    self.flash(
+                        flask.Markup(self.get_message_failure(item = item)),
+                        mydojo.const.FLASH_FAILURE
+                    )
+                    flask.current_app.log_exception_with_label(
+                        traceback.TracebackException(*sys.exc_info()),
+                        self.get_message_failure(item = item)
+                    )
+                    return self.redirect(default_url = self.get_url_next())
+
+        self.response_context.update(
+            confirm_form = form,
+            confirm_url  = flask.url_for(self.get_view_endpoint(), item_id = item_id),
+            item_name    = str(item),
+            item_id      = item_id,
+            item         = item
+        )
+
+        self.do_before_response()
+        return self.generate_response()
+
+
+class ItemChangeView(ItemActionView):  # pylint: disable=locally-disabled,abstract-method
+    """
+    Base class for single item change views, that are doing some simple modification
+    of item attribute, like enable/disable item, etc.
+    """
+
+    @classmethod
+    def validate_item_change(cls, item):  # pylint: disable=locally-disabled,unused-argument
+        """
+        Perform validation of particular change to given item.
+        """
+        return True
+
+    @classmethod
+    def change_item(cls, item):
+        """
+        *Hook method*: Change given item in any desired way.
+
+        :param item: Item to be changed/modified.
+        """
+        raise NotImplementedError()
+
+    def dispatch_request(self, item_id):  # pylint: disable=locally-disabled,arguments-differ
+        """
+        Mandatory interface required by the :py:func:`flask.views.View.dispatch_request`.
+        Will be called by the **Flask** framework to service the request.
+
+        This method will attempt to validate the submitted form, then perform
+        arbitrary mangling action with the item and submit the changes to the
+        database.
+        """
+        item = self.fetch(item_id)
+        if not item:
+            self.abort(404)
+
+        if not self.authorize_item_action(item):
+            self.abort(403)
+
+        if not self.validate_item_change(item):
+            self.abort(400)
+
+        form = ItemActionConfirmForm()
+
+        cancel_response = self.check_action_cancel(form, item = item)
+        if cancel_response:
+            return cancel_response
+
+        if form.validate_on_submit():
+            form_data = form.data
+
+            self.do_before_action(item)
+
+            if form_data[mydojo.const.FORM_ACTION_SUBMIT]:
+                try:
+                    self.change_item(item)
+                    if item not in self.dbsession.dirty:
+                        self.flash(
+                            gettext('No changes detected, no update needed.'),
+                            mydojo.const.FLASH_INFO
+                        )
+                        return self.redirect(default_url = self.get_url_next())
+
+                    self.dbsession.commit()
+                    self.do_after_action(item)
+
+                    self.flash(
+                        flask.Markup(self.get_message_success(item = item)),
+                        mydojo.const.FLASH_SUCCESS
+                    )
+                    try:
+                        exclude_url = flask.url_for(
+                            '{}.{}'.format(self.module_name, 'show'),
+                            item_id = item.id
+                        )
+                    except werkzeug.routing.BuildError:
+                        exclude_url = None
+                    return self.redirect(
+                        default_url = self.get_url_next(),
+                        exclude_url = exclude_url
+                    )
+
+                except Exception:  # pylint: disable=locally-disabled,broad-except
+                    self.dbsession.rollback()
+                    self.flash(
+                        flask.Markup(self.get_message_failure(item = item)),
+                        mydojo.const.FLASH_FAILURE
+                    )
+                    flask.current_app.log_exception_with_label(
+                        traceback.TracebackException(*sys.exc_info()),
+                        self.get_message_failure(item = item)
+                    )
+                    return self.redirect(default_url = self.get_url_next())
+
+        self.response_context.update(
+            confirm_form = form,
+            confirm_url  = flask.url_for(self.get_view_endpoint(), item_id = item_id),
+            item_name    = str(item),
+            item_id      = item_id,
+            item         = item
+        )
+
+        self.do_before_response()
+        return self.generate_response()
+
+
+class ItemDisableView(ItemChangeView):  # pylint: disable=locally-disabled,abstract-method
+    """
+    Base class for item disabling views.
+    """
+
+    @classmethod
+    def get_view_name(cls):
+        """*Implementation* of :py:func:`mydojo.base.BaseView.get_view_name`."""
+        return 'disable'
+
+    @classmethod
+    def get_view_title(cls, **kwargs):
+        """*Implementation* of :py:func:`mydojo.base.BaseView.get_menu_title`."""
+        return gettext('Disable')
+
+    @classmethod
+    def validate_item_change(cls, item):  # pylint: disable=locally-disabled,unused-argument
+        """*Implementation* of :py:func:`mydojo.base.ItemChangeView.validate_item_change`."""
+        # Reject item change in case given item is already disabled.
+        if not item.enabled:
+            return False
+        return True
+
+    @classmethod
+    def change_item(cls, item):
+        """*Implementation* of :py:func:`mydojo.base.ItemChangeView.change_item`."""
+        item.enabled = False
+
+
+class ItemEnableView(ItemChangeView):  # pylint: disable=locally-disabled,abstract-method
+    """
+    Base class for item enabling views.
+    """
+
+    @classmethod
+    def get_view_name(cls):
+        """*Implementation* of :py:func:`mydojo.base.BaseView.get_view_name`."""
+        return 'enable'
+
+    @classmethod
+    def get_view_title(cls, **kwargs):
+        """*Implementation* of :py:func:`mydojo.base.BaseView.get_menu_title`."""
+        return gettext('Enable')
+
+    @classmethod
+    def validate_item_change(cls, item):  # pylint: disable=locally-disabled,unused-argument
+        """*Implementation* of :py:func:`mydojo.base.ItemChangeView.validate_item_change`."""
+        # Reject item change in case given item is already enabled.
+        if item.enabled:
+            return False
+        return True
+
+    @classmethod
+    def change_item(cls, item):
+        """*Implementation* of :py:func:`mydojo.base.ItemChangeView.change_item`."""
+        item.enabled = True

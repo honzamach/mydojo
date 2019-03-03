@@ -1,0 +1,42 @@
+{%- extends "_layout.html" %}
+
+{%- block content %}
+
+            <!-- Item deletion confirmation form styled as bootstrap modal dialog. -->
+            <div class="row">
+                <div class="col-lg-12">
+
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+
+                            <div class="modal-header">
+                                <h4 class="modal-title">
+                                    {{ get_icon('modal-question') }}
+                                    {{ mydojo_current_view.get_view_title() }}
+                                </h4>
+                            </div>
+
+                            <div class="modal-body">
+                                <p>{{ gettext('Are you really sure you want to permanently remove following item:') }}</p>
+                                <p class="lead text-center">{{ item_name }}</p>
+                                <p>{{ gettext('Please note, that this operation is irreversible.') }}</p>
+                            </div>
+
+                            <div class="modal-footer">
+                                <form method="POST" action="{{ delete_url }}">
+                                    {{ macros_form.render_form_errors(confirm_form.next.errors) }}
+                                    {{ confirm_form.next }}
+                                    {{ macros_form.render_form_errors(confirm_form.csrf_token.errors) }}
+                                    {{ confirm_form.csrf_token }}
+                                    {{ confirm_form.cancel(class_='btn btn-secondary') }}
+                                    {{ confirm_form.submit(class_='btn btn-primary') }}
+                                </form>
+                            </div>
+
+                        </div><!-- /.modal-content -->
+                    </div><!-- /.modal-dialog -->
+
+                </div><!-- /.col-lg-12 -->
+            </div><!-- /.row -->
+
+{% endblock content %}
