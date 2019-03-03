@@ -172,7 +172,7 @@ class BaseConfig:  # pylint: disable=locally-disabled,too-few-public-methods
             'ident': 'dashboards',
             'position': 100,
             'title': lazy_gettext('Dashboards'),
-            'resptitle': True,
+            'hidetitle': True,
             'icon': 'section-dashboards'
         },
         {
@@ -180,7 +180,7 @@ class BaseConfig:  # pylint: disable=locally-disabled,too-few-public-methods
             'ident': 'more',
             'position': 200,
             'title': lazy_gettext('More'),
-            'resptitle': True,
+            'hidetitle': True,
             'icon': 'section-more',
         },
         {
@@ -190,7 +190,7 @@ class BaseConfig:  # pylint: disable=locally-disabled,too-few-public-methods
             'authentication': True,
             'authorization': ['admin'],
             'title': lazy_gettext('Administration'),
-            'resptitle': True,
+            'hidetitle': True,
             'icon': 'section-administration'
         },
         {
@@ -200,7 +200,7 @@ class BaseConfig:  # pylint: disable=locally-disabled,too-few-public-methods
             'authentication': True,
             'authorization': ['developer'],
             'title': lazy_gettext('Development'),
-            'resptitle': True,
+            'hidetitle': True,
             'icon': 'section-development'
         }
     ]
