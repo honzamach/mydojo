@@ -669,7 +669,6 @@ class BaseView(flask.views.View):
         """
         return cls.get_menu_title(**kwargs)
 
-
     #---------------------------------------------------------------------------
 
     @property
@@ -769,7 +768,7 @@ class FileIDView(BaseView):
     """
 
     @classmethod
-    def get_directory_path(cls, fileid):
+    def get_directory_path(cls, fileid, filetype):
         """
         This method must return absolute path to the directory, that will be
         used as a base path for serving files. Parameter ``fileid`` may be used
@@ -781,6 +780,7 @@ class FileIDView(BaseView):
         by a subclass.*
 
         :param str fileid: Identifier of the requested file.
+        :param str filetype: Type of the requested file.
         :return: Absolute path to the directory for serving files.
         :rtype: str
         """
@@ -807,7 +807,7 @@ class FileIDView(BaseView):
         Mandatory interface required by the :py:func:`flask.views.View.dispatch_request`.
         Will be called by the **Flask** framework to service the request.
         """
-        basedirpath = self.get_directory_path(fileid)
+        basedirpath = self.get_directory_path(fileid, filetype)
         filename = self.get_filename(fileid, filetype)
         if not basedirpath or not filename:
             flask.abort(400)
