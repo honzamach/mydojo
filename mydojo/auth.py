@@ -13,7 +13,7 @@ This module contains authentication and authorization features for MyDojo applic
 """
 
 
-__author__ = "Jan Mach <jan.mach@cesnet.cz>"
+__author__ = "Honza Mach <honza.mach.ml@gmail.com>"
 
 
 from functools import partial
