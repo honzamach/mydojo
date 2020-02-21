@@ -33,6 +33,7 @@ from flask_babel import gettext, lazy_gettext
 # Custom modules.
 #
 import mydojo.const
+import mydojo.auth
 import mydojo.db
 import mydojo.forms
 from mydojo.base import HTMLMixin, SQLAlchemyMixin, ItemChangeView, MyDojoBlueprint
@@ -207,8 +208,8 @@ class APIAuthBlueprint(MyDojoBlueprint):
 
         :param mydojo.base.MyDojoApp app: Flask application to be customize.
         """
-        login_manager = app.get_resource(mydojo.const.RESOURCE_LOGIN_MANAGER)
-        principal = app.get_resource(mydojo.const.RESOURCE_PRINCIPAL)
+        login_manager = mydojo.auth.LOGIN_MANAGER
+        principal = mydojo.auth.PRINCIPAL
 
         @login_manager.request_loader
         def load_user_from_request(request):  # pylint: disable=locally-disabled,unused-variable
