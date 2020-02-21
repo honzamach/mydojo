@@ -14,7 +14,7 @@ MyDojo - My personal internet Dojo
 
 
 __author__ = "Honza Mach <honza.mach.ml@gmail.com>"
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 
 
 import click
