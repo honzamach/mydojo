@@ -219,17 +219,30 @@ class APIAuthBlueprint(MyDojoBlueprint):
             https://flask-login.readthedocs.io/en/latest/#custom-login-using-request-loader
             """
 
-            # Try to login using the api_key argument. This was the original approach,
-            # now deprecated due to the lack of security.
-            #if request.method == 'POST':
-            #    api_key = request.form.get('api_key')
-            #else:
-            #    api_key = request.args.get('api_key')
+            # Attempt to extract token from Authorization header. Following formats
+            # may be used:
+            #   Authorization: abcd1234
+            #   Authorization: key abcd1234
+            #   Authorization: token abcd1234
+            api_key = request.headers.get("Authorization")
+            if api_key:
+                vals = api_key.split()
+                if len(vals) == 1:
+                    api_key = vals[0]
+                elif len(vals) == 2 and vals[0] in ("token", "key"):
+                    api_key = vals[1]
+                else:
+                    api_key = None
+            # API key may also be received via POST method, parameters 'api_key'
+            # or 'api_token'. The GET method is forbidden due to the lack
+            # of security, there is a possiblity for it to be stored in various
+            # insecure places like web server logs.
+            if not api_key:
+                api_key = request.form.get('api_key')
+            if not api_key:
+                api_key = request.form.get('api_token')
 
-            # API key mey be received only via POST method, otherwise there is a
-            # possiblity for it to be stored in various insecure places like web
-            #server logs.
-            api_key = request.form.get('api_key')
+            # Now login the user with provided API key.
             if api_key:
                 try:
                     user = SQLDB.session.query(UserModel).filter(UserModel.apikey == api_key).one()
