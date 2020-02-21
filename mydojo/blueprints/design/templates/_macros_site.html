@@ -81,7 +81,7 @@
                                                 </span>
                                             </a>
                                             <ul class="dropdown-menu{% if menu_item.align_right %} dropdown-menu-right{% endif %}">
-                        {%- for submenu_item in menu_item.get_menu(item = context_item) %}
+                        {%- for submenu_item in menu_item.get_entries(item = context_item) %}
                                                 <a class="dropdown-item" href="{{ submenu_item.get_url(item = context_item) }}"{% if submenu_item.get_legend(item = context_item) %} data-toggle="tooltip" title="{{ submenu_item.get_legend(item = context_item) }}"{% endif %}>
                                                     {% if submenu_item.get_icon(item = context_item) %}{{ get_icon(submenu_item.get_icon(item = context_item)) }}{% endif %}{% if submenu_item.get_title(item = context_item) %}{% if submenu_item.resptitle %}<span class="hidden-sm"> {{ submenu_item.get_title(item = context_item) }}</span>{% else %} {{ submenu_item.get_title(item = context_item) }}{% endif %}{% endif %}
                                                 </a>
