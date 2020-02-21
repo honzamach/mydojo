@@ -140,6 +140,7 @@ class BaseConfig:  # pylint: disable=locally-disabled,too-few-public-methods
     """List of all languages (locales) supported by the application."""
 
     MYDOJO_MODULES = [
+        'mydojo.blueprints.auth_api',
         'mydojo.blueprints.auth_pwd',
         'mydojo.blueprints.design',
         'mydojo.blueprints.home',
@@ -234,6 +235,7 @@ class DevelopmentConfig(BaseConfig):  # pylint: disable=locally-disabled,too-few
     #---------------------------------------------------------------------------
 
     MYDOJO_MODULES = [
+        'mydojo.blueprints.auth_api',
         'mydojo.blueprints.auth_dev',
         'mydojo.blueprints.auth_pwd',
         'mydojo.blueprints.design',

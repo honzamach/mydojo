@@ -1,0 +1,39 @@
+{%- extends "_layout.html" %}
+
+{%- block content %}
+
+            <!-- Item enabling confirmation form styled as bootstrap modal dialog. -->
+            <div class="row">
+                <div class="col-lg-12">
+
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+
+                            <div class="modal-header">
+                                <h4 class="modal-title">{{ get_icon('modal-question') }} {{ mydojo_current_view.get_view_title() }}</h4>
+                            </div>
+
+                            <div class="modal-body">
+                                <p>{{ _('Are you really sure you want to generate new API access key for following user account:') }}</p>
+                                <p class="lead text-center">{{ item_name }}</p>
+                                <p>{{ _('Please note, that this operation is irreversible and any existing data will be overwritten.') }}</p>
+                            </div>
+
+                            <div class="modal-footer">
+                                <form method="POST" action="{{ confirm_url }}">
+                                    {{ macros_form.render_form_errors(confirm_form.next.errors) }}
+                                    {{ confirm_form.next }}
+                                    {{ macros_form.render_form_errors(confirm_form.csrf_token.errors) }}
+                                    {{ confirm_form.csrf_token }}
+                                    {{ confirm_form.cancel(class_='btn btn-default') }}
+                                    {{ confirm_form.submit(class_='btn btn-primary') }}
+                                </form>
+                            </div>
+
+                        </div><!-- /.modal-content -->
+                    </div><!-- /.modal-dialog -->
+
+                </div><!-- /.col-lg-12 -->
+            </div><!-- /.row -->
+
+{% endblock content %}
