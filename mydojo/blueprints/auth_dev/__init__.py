@@ -76,6 +76,8 @@ class LoginView(HTMLMixin, SQLAlchemyMixin, SimpleView):
     """
     methods = ['GET', 'POST']
 
+    is_sign_in = True
+
     @classmethod
     def get_view_name(cls):
         """*Implementation* of :py:func:`mydojo.base.BaseView.get_view_name`."""

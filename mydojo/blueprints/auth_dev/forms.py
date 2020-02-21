@@ -9,7 +9,7 @@
 
 
 """
-This module contains custom developer login form for Hawat.
+This module contains special developer login form.
 """
 
 
